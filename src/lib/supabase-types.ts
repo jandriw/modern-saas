@@ -28,6 +28,111 @@ export type Database = {
 	};
 	public: {
 		Tables: {
+			billing_customers: {
+				Row: {
+					email: string;
+					id: string;
+					metadata: Json | null;
+					user_id: string;
+				};
+				Insert: {
+					email: string;
+					id: string;
+					metadata?: Json | null;
+					user_id: string;
+				};
+				Update: {
+					email?: string;
+					id?: string;
+					metadata?: Json | null;
+					user_id?: string;
+				};
+				Relationships: [];
+			};
+			billing_products: {
+				Row: {
+					active: boolean;
+					description: string;
+					id: string;
+					metadata: Json | null;
+					name: string;
+				};
+				Insert: {
+					active: boolean;
+					description: string;
+					id: string;
+					metadata?: Json | null;
+					name: string;
+				};
+				Update: {
+					active?: boolean;
+					description?: string;
+					id?: string;
+					metadata?: Json | null;
+					name?: string;
+				};
+				Relationships: [];
+			};
+			billing_subscriptions: {
+				Row: {
+					cancel_at_period_end: boolean | null;
+					created: string;
+					current_period_end: string;
+					current_period_start: string;
+					customer_id: string;
+					id: string;
+					metadata: Json | null;
+					product_id: string;
+					status: Database["public"]["Enums"]["subscription_status"];
+					trial_end: string | null;
+					trial_start: string | null;
+					user_id: string;
+				};
+				Insert: {
+					cancel_at_period_end?: boolean | null;
+					created: string;
+					current_period_end: string;
+					current_period_start: string;
+					customer_id: string;
+					id: string;
+					metadata?: Json | null;
+					product_id: string;
+					status: Database["public"]["Enums"]["subscription_status"];
+					trial_end?: string | null;
+					trial_start?: string | null;
+					user_id: string;
+				};
+				Update: {
+					cancel_at_period_end?: boolean | null;
+					created?: string;
+					current_period_end?: string;
+					current_period_start?: string;
+					customer_id?: string;
+					id?: string;
+					metadata?: Json | null;
+					product_id?: string;
+					status?: Database["public"]["Enums"]["subscription_status"];
+					trial_end?: string | null;
+					trial_start?: string | null;
+					user_id?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "billing_subscriptions_customer_id_fkey";
+						columns: ["customer_id"];
+						isOneToOne: false;
+						referencedRelation: "billing_customers";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "billing_subscriptions_product_id_fkey";
+						columns: ["product_id"];
+						isOneToOne: false;
+						referencedRelation: "billing_products";
+						referencedColumns: ["id"];
+					}
+				];
+			};
 			contacts: {
 				Row: {
 					company: string | null;
@@ -90,7 +195,15 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Enums: {
-			[_ in never]: never;
+			subscription_status:
+				| "trialing"
+				| "active"
+				| "canceled"
+				| "incomplete"
+				| "incomplete_expired"
+				| "past_due"
+				| "unpaid"
+				| "paused";
 		};
 		CompositeTypes: {
 			[_ in never]: never;
