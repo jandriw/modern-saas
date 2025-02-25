@@ -127,3 +127,19 @@ const priceSchema = z.object({
 });
 
 export const priceListSchema = z.array(priceSchema);
+
+export const createGoalSchema = z
+  .object({
+    goal: z.string().max(140, "Name must be 140 characters or less").nullish(),
+  })
+  .refine(({ goal }) => {
+    return goal
+  }, "Goal must be filled out");
+
+export type CreateGoalSchema = typeof createGoalSchema;
+
+export const deleteGoalSchema = z.object({
+  id: z.string(),
+});
+
+export type DeleteGoalSchema = typeof deleteGoalSchema;
