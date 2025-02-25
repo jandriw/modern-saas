@@ -1,29 +1,31 @@
 <script>
+// @ts-nocheck
+
   import Checkbox from "./Checkbox.svelte";
 
-  export let year = 2024; // Año del mes a mostrar
-  export let month = 1; // Febrero (Los meses en JS van de 0 a 11)
+  export let year = 2024;
+  export let month = 1;
+  export let completedDays = []; // Recibe las fechas marcadas como 'YYYY-MM-DD'
 
-  // Días de la semana
   const daysOfWeek = ["M", "T", "W", "Th", "F", "S", "Su"];
 
-  // Obtener el primer día del mes (0 = Domingo, 6 = Sábado)
   let firstDay = new Date(year, month, 1).getDay();
-  firstDay = firstDay === 0 ? 6 : firstDay - 1; // Ajustar para que empiece en lunes
+  firstDay = firstDay === 0 ? 6 : firstDay - 1; // Ajuste para que inicie en lunes
 
-  // Obtener la cantidad de días del mes
   let daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  // Obtener la fecha de hoy
   let today = new Date();
+
+  // Normaliza una fecha a formato 'YYYY-MM-DD'
+  function formatDate(date) {
+    return date.toISOString().split("T")[0];
+  }
 </script>
 
-<!-- Encabezado con los días de la semana -->
 <style>
   .month-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 columnas de tamaño igual */
-    gap: 5px; /* Espaciado uniforme en todas direcciones */
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
     width: max-content;
   }
 
@@ -33,7 +35,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px; /* Tamaño igual a las casillas */
+    width: 28px;
     height: 28px;
   }
 
@@ -53,6 +55,10 @@
   {/each}
 
   {#each Array(daysInMonth) as _, i}
-    <Checkbox date={new Date(year, month, i + 1)} today={today} />
+    <Checkbox 
+      date={new Date(year, month, i + 1)} 
+      today={today} 
+      status={completedDays.includes(formatDate(new Date(year, month, i + 2))) ? "checked" : "unchecked"}
+    />
   {/each}
 </div>

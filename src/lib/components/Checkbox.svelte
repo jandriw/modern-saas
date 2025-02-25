@@ -1,11 +1,12 @@
 <script>
 // @ts-nocheck
 
-  export let date; // Fecha de la casilla
-  export let today = new Date(); // Fecha actual
-  export let status = null; // "checked", "unchecked", o null para días futuros
+  export let date;
+  export let today = new Date();
+  // @ts-ignore
+  export let status = null; // "checked" o "unchecked"
 
-  // Normalizamos las fechas para que la comparación solo tenga en cuenta año, mes y día.
+  // @ts-ignore
   function normalizeDate(d) {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
@@ -15,10 +16,12 @@
 
   let isPast = normalizedDate < normalizedToday;
   let isToday = normalizedDate.getTime() === normalizedToday.getTime();
+  // @ts-ignore
   let isFuture = normalizedDate > normalizedToday;
 
   function toggleCheck() {
     if (isToday) {
+      // @ts-ignore
       status = status === "checked" ? "unchecked" : "checked";
     }
   }

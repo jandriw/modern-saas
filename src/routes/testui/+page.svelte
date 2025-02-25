@@ -1,33 +1,19 @@
 <script>
-// @ts-nocheck
-
-  import Checkbox from "$lib/components/Checkbox.svelte";
+  // @ts-ignore
   import Month from "$lib/components/Month.svelte";
 
-  // Definimos fechas de ejemplo
-  let today = new Date();
-  let yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-
-  let futureDate = new Date();
-  futureDate.setDate(today.getDate() + 1);
-
-  let oldDate = new Date();
-  oldDate.setDate(today.getDate() - 5);
+  // Fechas en las que se cumplió el objetivo (formato 'YYYY-MM-DD')
+  let completedDays = [
+    "2025-02-01",
+    "2025-02-03",
+    "2025-02-05",
+    "2025-02-07",
+    "2025-02-10",
+    "2025-02-15",
+    "2025-02-20"
+  ];
 </script>
 
 <main style="display: flex; gap: 10px;">
-  <!-- Casilla pasada con check -->
-  <Checkbox date={oldDate} status="checked" />
-
-  <!-- Casilla pasada sin check -->
-  <Checkbox date={yesterday} status="unchecked" />
-
-  <!-- Casilla activa (día actual) -->
-  <Checkbox date={today} />
-
-  <!-- Casilla futura -->
-  <Checkbox date={futureDate} />
-
-  <Month year={2025} month={3} />
+  <Month year={2025} month={1} completedDays={completedDays} />
 </main>
