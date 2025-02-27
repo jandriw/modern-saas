@@ -35,14 +35,14 @@
 </script>
 
 <svelte:head>
-  <title>Contactly</title>
+  <title>GoalTracker</title>
 </svelte:head>
 
 <div class="flex h-full flex-col">
   <Navbar let:hidden let:toggle>
     <NavBrand href="/">
       <img src="/images/logo.png" class="mr-3 h-6 sm:h-9" alt="Contactly Logo" />
-      <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"> Contactly </span>
+      <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white"> GoalTracker </span>
     </NavBrand>
     <div class="flex md:order-2">
       {#if session}

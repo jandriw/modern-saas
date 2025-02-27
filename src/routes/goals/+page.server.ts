@@ -18,6 +18,29 @@ export const load: PageServerLoad = async (event) => {
     }
     return goals;
   }
+
+  async function getCompletedDays() {
+    const { data: completedDays, error: daysError } = await event.locals.supabase
+      .from("dates")
+      .select("goal, date")
+      .order("date", { ascending: true });
+  
+    if (daysError) {
+      throw error(500, "Error fetching completed days, please try again later.");
+    }
+  
+    // Definir el tipo del objeto acumulador
+    const groupedDays: Record<string, string[]> = completedDays.reduce((acc, entry) => {
+      if (!acc[entry.goal]) {
+        acc[entry.goal] = [];
+      }
+      acc[entry.goal].push(entry.date);
+      return acc;
+    }, {} as Record<string, string[]>);
+  
+    return groupedDays;
+  }
+  
   return {
     createGoalForm: superValidate(createGoalSchema, {
       id: "create",
@@ -26,8 +49,11 @@ export const load: PageServerLoad = async (event) => {
     deleteGoalForm: superValidate(deleteGoalSchema, {
       id: "delete",
     }),
+    dates: getCompletedDays(),
   };
 };
+
+//TODO: Ver la forma de insertar la fecha de hoy en el goal prestablecido para despues sacarlo congetCompletedDays
 
 export const actions: Actions = {
   createGoal: async (event) => {
