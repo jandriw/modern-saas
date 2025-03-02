@@ -130,7 +130,7 @@ export const priceListSchema = z.array(priceSchema);
 
 export const createGoalSchema = z
   .object({
-    goal: z.string().max(140, "Name must be 140 characters or less").nullish(),
+    goal: z.string().max(140, "Goal must be 140 characters or less").nullish(),
   })
   .refine(({ goal }) => {
     return goal
@@ -143,3 +143,14 @@ export const deleteGoalSchema = z.object({
 });
 
 export type DeleteGoalSchema = typeof deleteGoalSchema;
+
+export const createDateSchema = z
+  .object({
+    date: z.date().nullish(),
+    goal_id: z.string()
+  })
+  .refine(({ date, goal_id }) => {
+    return date || goal_id;
+  }, "Date must be filled out");
+
+export type CreateDateSchema = typeof createDateSchema;
