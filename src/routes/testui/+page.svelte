@@ -12,8 +12,11 @@
     "2025-02-15",
     "2025-02-20"
   ];
+
+  const thisYear = new Date().getFullYear();
+  const thisMonth = new Date().getMonth();
 </script>
 
 <main style="display: flex; gap: 10px;">
-  <Month year={2025} month={1} completedDays={completedDays} />
+  <Month year={thisYear} month={thisMonth} completedDays={completedDays} />
 </main>
