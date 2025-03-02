@@ -166,6 +166,41 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			dates: {
+				Row: {
+					created_at: string;
+					date: string;
+					goal_id: string;
+					id: string;
+					updated_at: string;
+					user_id: string;
+				};
+				Insert: {
+					created_at?: string;
+					date: string;
+					goal_id: string;
+					id?: string;
+					updated_at?: string;
+					user_id: string;
+				};
+				Update: {
+					created_at?: string;
+					date?: string;
+					goal_id?: string;
+					id?: string;
+					updated_at?: string;
+					user_id?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "dates_goal_id_fkey";
+						columns: ["goal_id"];
+						isOneToOne: false;
+						referencedRelation: "goals";
+						referencedColumns: ["id"];
+					}
+				];
+			};
 			goals: {
 				Row: {
 					created_at: string;
@@ -244,7 +279,6 @@ export type Database = {
 					id: string;
 					name: string;
 					owner: string | null;
-					owner_id: string | null;
 					public: boolean | null;
 					updated_at: string | null;
 				};
@@ -256,7 +290,6 @@ export type Database = {
 					id: string;
 					name: string;
 					owner?: string | null;
-					owner_id?: string | null;
 					public?: boolean | null;
 					updated_at?: string | null;
 				};
@@ -268,7 +301,6 @@ export type Database = {
 					id?: string;
 					name?: string;
 					owner?: string | null;
-					owner_id?: string | null;
 					public?: boolean | null;
 					updated_at?: string | null;
 				};
@@ -301,14 +333,11 @@ export type Database = {
 					created_at: string | null;
 					id: string;
 					last_accessed_at: string | null;
-					level: number | null;
 					metadata: Json | null;
 					name: string | null;
 					owner: string | null;
-					owner_id: string | null;
 					path_tokens: string[] | null;
 					updated_at: string | null;
-					user_metadata: Json | null;
 					version: string | null;
 				};
 				Insert: {
@@ -316,14 +345,11 @@ export type Database = {
 					created_at?: string | null;
 					id?: string;
 					last_accessed_at?: string | null;
-					level?: number | null;
 					metadata?: Json | null;
 					name?: string | null;
 					owner?: string | null;
-					owner_id?: string | null;
 					path_tokens?: string[] | null;
 					updated_at?: string | null;
-					user_metadata?: Json | null;
 					version?: string | null;
 				};
 				Update: {
@@ -331,14 +357,11 @@ export type Database = {
 					created_at?: string | null;
 					id?: string;
 					last_accessed_at?: string | null;
-					level?: number | null;
 					metadata?: Json | null;
 					name?: string | null;
 					owner?: string | null;
-					owner_id?: string | null;
 					path_tokens?: string[] | null;
 					updated_at?: string | null;
-					user_metadata?: Json | null;
 					version?: string | null;
 				};
 				Relationships: [
@@ -351,148 +374,11 @@ export type Database = {
 					}
 				];
 			};
-			prefixes: {
-				Row: {
-					bucket_id: string;
-					created_at: string | null;
-					level: number;
-					name: string;
-					updated_at: string | null;
-				};
-				Insert: {
-					bucket_id: string;
-					created_at?: string | null;
-					level?: number;
-					name: string;
-					updated_at?: string | null;
-				};
-				Update: {
-					bucket_id?: string;
-					created_at?: string | null;
-					level?: number;
-					name?: string;
-					updated_at?: string | null;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "prefixes_bucketId_fkey";
-						columns: ["bucket_id"];
-						isOneToOne: false;
-						referencedRelation: "buckets";
-						referencedColumns: ["id"];
-					}
-				];
-			};
-			s3_multipart_uploads: {
-				Row: {
-					bucket_id: string;
-					created_at: string;
-					id: string;
-					in_progress_size: number;
-					key: string;
-					owner_id: string | null;
-					upload_signature: string;
-					user_metadata: Json | null;
-					version: string;
-				};
-				Insert: {
-					bucket_id: string;
-					created_at?: string;
-					id: string;
-					in_progress_size?: number;
-					key: string;
-					owner_id?: string | null;
-					upload_signature: string;
-					user_metadata?: Json | null;
-					version: string;
-				};
-				Update: {
-					bucket_id?: string;
-					created_at?: string;
-					id?: string;
-					in_progress_size?: number;
-					key?: string;
-					owner_id?: string | null;
-					upload_signature?: string;
-					user_metadata?: Json | null;
-					version?: string;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "s3_multipart_uploads_bucket_id_fkey";
-						columns: ["bucket_id"];
-						isOneToOne: false;
-						referencedRelation: "buckets";
-						referencedColumns: ["id"];
-					}
-				];
-			};
-			s3_multipart_uploads_parts: {
-				Row: {
-					bucket_id: string;
-					created_at: string;
-					etag: string;
-					id: string;
-					key: string;
-					owner_id: string | null;
-					part_number: number;
-					size: number;
-					upload_id: string;
-					version: string;
-				};
-				Insert: {
-					bucket_id: string;
-					created_at?: string;
-					etag: string;
-					id?: string;
-					key: string;
-					owner_id?: string | null;
-					part_number: number;
-					size?: number;
-					upload_id: string;
-					version: string;
-				};
-				Update: {
-					bucket_id?: string;
-					created_at?: string;
-					etag?: string;
-					id?: string;
-					key?: string;
-					owner_id?: string | null;
-					part_number?: number;
-					size?: number;
-					upload_id?: string;
-					version?: string;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey";
-						columns: ["bucket_id"];
-						isOneToOne: false;
-						referencedRelation: "buckets";
-						referencedColumns: ["id"];
-					},
-					{
-						foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey";
-						columns: ["upload_id"];
-						isOneToOne: false;
-						referencedRelation: "s3_multipart_uploads";
-						referencedColumns: ["id"];
-					}
-				];
-			};
 		};
 		Views: {
 			[_ in never]: never;
 		};
 		Functions: {
-			add_prefixes: {
-				Args: {
-					_bucket_id: string;
-					_name: string;
-				};
-				Returns: undefined;
-			};
 			can_insert_object: {
 				Args: {
 					bucketid: string;
@@ -501,13 +387,6 @@ export type Database = {
 					metadata: Json;
 				};
 				Returns: undefined;
-			};
-			delete_prefix: {
-				Args: {
-					_bucket_id: string;
-					_name: string;
-				};
-				Returns: boolean;
 			};
 			extension: {
 				Args: {
@@ -527,65 +406,12 @@ export type Database = {
 				};
 				Returns: string[];
 			};
-			get_level: {
-				Args: {
-					name: string;
-				};
-				Returns: number;
-			};
-			get_prefix: {
-				Args: {
-					name: string;
-				};
-				Returns: string;
-			};
-			get_prefixes: {
-				Args: {
-					name: string;
-				};
-				Returns: string[];
-			};
 			get_size_by_bucket: {
 				Args: Record<PropertyKey, never>;
 				Returns: {
 					size: number;
 					bucket_id: string;
 				}[];
-			};
-			list_multipart_uploads_with_delimiter: {
-				Args: {
-					bucket_id: string;
-					prefix_param: string;
-					delimiter_param: string;
-					max_keys?: number;
-					next_key_token?: string;
-					next_upload_token?: string;
-				};
-				Returns: {
-					key: string;
-					id: string;
-					created_at: string;
-				}[];
-			};
-			list_objects_with_delimiter: {
-				Args: {
-					bucket_id: string;
-					prefix_param: string;
-					delimiter_param: string;
-					max_keys?: number;
-					start_after?: string;
-					next_token?: string;
-				};
-				Returns: {
-					name: string;
-					id: string;
-					metadata: Json;
-					updated_at: string;
-				}[];
-			};
-			operation: {
-				Args: Record<PropertyKey, never>;
-				Returns: string;
 			};
 			search: {
 				Args: {
@@ -604,63 +430,6 @@ export type Database = {
 					updated_at: string;
 					created_at: string;
 					last_accessed_at: string;
-					metadata: Json;
-				}[];
-			};
-			search_legacy_v1: {
-				Args: {
-					prefix: string;
-					bucketname: string;
-					limits?: number;
-					levels?: number;
-					offsets?: number;
-					search?: string;
-					sortcolumn?: string;
-					sortorder?: string;
-				};
-				Returns: {
-					name: string;
-					id: string;
-					updated_at: string;
-					created_at: string;
-					last_accessed_at: string;
-					metadata: Json;
-				}[];
-			};
-			search_v1_optimised: {
-				Args: {
-					prefix: string;
-					bucketname: string;
-					limits?: number;
-					levels?: number;
-					offsets?: number;
-					search?: string;
-					sortcolumn?: string;
-					sortorder?: string;
-				};
-				Returns: {
-					name: string;
-					id: string;
-					updated_at: string;
-					created_at: string;
-					last_accessed_at: string;
-					metadata: Json;
-				}[];
-			};
-			search_v2: {
-				Args: {
-					prefix: string;
-					bucket_name: string;
-					limits?: number;
-					levels?: number;
-					start_after?: string;
-				};
-				Returns: {
-					key: string;
-					name: string;
-					id: string;
-					updated_at: string;
-					created_at: string;
 					metadata: Json;
 				}[];
 			};

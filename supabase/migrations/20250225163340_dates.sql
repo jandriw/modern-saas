@@ -4,7 +4,7 @@ create table public.dates(
   id uuid primary key default uuid_generate_v4(),
   goal_id uuid references public.goals(id) on delete cascade not null,
   user_id uuid references auth.users(id) on delete cascade not null,
-  date date not null,
+  date text not null,
   created_at timestamp with time zone default now() not null,
   updated_at timestamp with time zone default now() not null
 );

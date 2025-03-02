@@ -146,7 +146,7 @@ export type DeleteGoalSchema = typeof deleteGoalSchema;
 
 export const createDateSchema = z
   .object({
-    date: z.date().nullish(),
+    date: z.string().nullish(),
     goal_id: z.string()
   })
   .refine(({ date, goal_id }) => {
