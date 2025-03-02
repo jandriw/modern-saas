@@ -27,6 +27,8 @@ export const load: PageServerLoad = async (event) => {
     };
   }
   
+  //TODO: los meses deben ser de 0 a 11 y no de 1 a 12.
+  //TODO: los goals sin ningun dato deben sacar el mes en cuestión vacío.
   async function getCompletedDays(): Promise<CompletedDays> {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
@@ -149,8 +151,6 @@ export const load: PageServerLoad = async (event) => {
     })
   };
 };
-
-//TODO: Crear nuevo 'action' llamado addDate tomando como base cualquiera de los existentes. Ver los schemas necesarios y probar
 
 export const actions: Actions = {
   createGoal: async (event) => {
