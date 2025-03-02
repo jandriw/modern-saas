@@ -1,7 +1,7 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { setError, superValidate } from "sveltekit-superforms/server";
-import { createGoalSchema, deleteGoalSchema } from "$lib/schemas";
+import { createDateSchema, createGoalSchema, deleteGoalSchema } from "$lib/schemas";
 import { supabaseAdmin } from "$lib/server/supabase-admin";
 
 export const load: PageServerLoad = async (event) => {
@@ -22,7 +22,7 @@ export const load: PageServerLoad = async (event) => {
   async function getCompletedDays() {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
-      .select("goal, date")
+      .select("goal_id, date")
       .order("date", { ascending: true });
   
     if (daysError) {
@@ -31,10 +31,10 @@ export const load: PageServerLoad = async (event) => {
   
     // Definir el tipo del objeto acumulador
     const groupedDays: Record<string, string[]> = completedDays.reduce((acc, entry) => {
-      if (!acc[entry.goal]) {
-        acc[entry.goal] = [];
+      if (!acc[entry.goal_id]) {
+        acc[entry.goal_id] = [];
       }
-      acc[entry.goal].push(entry.date);
+      acc[entry.goal_id].push(entry.date);
       return acc;
     }, {} as Record<string, string[]>);
   
@@ -45,15 +45,18 @@ export const load: PageServerLoad = async (event) => {
     createGoalForm: superValidate(createGoalSchema, {
       id: "create",
     }),
-    goals: getGoals(),
+    goals: await getGoals(),
     deleteGoalForm: superValidate(deleteGoalSchema, {
       id: "delete",
     }),
-    dates: getCompletedDays(),
+    dates: await getCompletedDays(),
+    createDateForm: superValidate(createDateSchema, {
+      id: "date"
+    })
   };
 };
 
-//TODO: Ver la forma de insertar la fecha de hoy en el goal prestablecido para despues sacarlo congetCompletedDays
+//TODO: Crear nuevo 'action' llamado addDate tomando como base cualquiera de los existentes. Ver los schemas necesarios y probar
 
 export const actions: Actions = {
   createGoal: async (event) => {
@@ -113,6 +116,37 @@ export const actions: Actions = {
 
     return {
       deleteGoalForm,
+    };
+  },
+  addDate: async (event) => {
+    console.log("addDate Submitted")
+    const session = await event.locals.getSession();
+    if (!session) {
+      throw error(401, "Unauthorized");
+    }
+
+    const createDateForm = await superValidate(event, createDateSchema, {
+      id: "date",
+    });
+
+    if (!createDateForm.valid) {
+      return fail(400, {
+        createDateForm,
+      });
+    }
+
+    const { error: createDateError } = await supabaseAdmin.from("dates").insert({
+      ...createDateForm.data,
+      user_id: session.user.id,
+    });
+
+    if (createDateError) {
+      console.log(createDateError);
+      return setError(createDateForm, null, "Error creating date.");
+    }
+
+    return {
+      createDateForm,
     };
   },
 };
