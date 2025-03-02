@@ -136,7 +136,8 @@ export const actions: Actions = {
     }
 
     const { error: createDateError } = await supabaseAdmin.from("dates").insert({
-      ...createDateForm.data,
+      date: createDateForm.data.date,
+      goal_id: createDateForm.data.goal_id,
       user_id: session.user.id,
     });
 

@@ -9,14 +9,23 @@
   import CreateGoalModal from "./CreateGoalModal.svelte";
 	import DeleteGoalModal from "./DeleteGoalModal.svelte";
   import Month from "$lib/components/Month.svelte";
+	import CreateDateModal from "./CreateDateModal.svelte";
 
   export let data: PageData;
+  let createDateOpen = false;
   let createGoalOpen = false;
   let deleteGoalOpen = false;
   let goalToDelete: string;
+  let goalToDone: string;
+
   function handleGoalDelete(goal_id: string) {
     goalToDelete = goal_id;
     deleteGoalOpen = true;
+  }
+
+  function handleGoalCheck(goal_id: string) {
+    goalToDone = goal_id
+    createDateOpen = true
   }
 
   const thisYear = new Date().getFullYear();
@@ -48,6 +57,7 @@
             <!--Componente month para el mes actual-->
             <Month year={thisYear} month={thisMonth} />
           </div>
+          <button on:click={() => handleGoalCheck(goal.id)}>Check</button>
         </div>
       {/each}
     {/if}
@@ -55,3 +65,4 @@
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
 <DeleteGoalModal bind:open={deleteGoalOpen} goalId={goalToDelete} data={data.deleteGoalForm} />
+<CreateDateModal bind:open={createDateOpen} goalId={goalToDone} data={data.createDateForm} />

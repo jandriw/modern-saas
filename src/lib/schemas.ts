@@ -146,11 +146,8 @@ export type DeleteGoalSchema = typeof deleteGoalSchema;
 
 export const createDateSchema = z
   .object({
-    date: z.string().nullish(),
+    date: z.string(),
     goal_id: z.string()
   })
-  .refine(({ date, goal_id }) => {
-    return date || goal_id;
-  }, "Date must be filled out");
 
 export type CreateDateSchema = typeof createDateSchema;
