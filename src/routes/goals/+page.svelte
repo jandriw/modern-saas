@@ -3,17 +3,13 @@
     Button,
     Dropdown,
     DropdownItem,
-    MenuButton,
-    Table,
-    TableBody,
-    TableBodyCell,
-    TableBodyRow,
-    TableHead,
-    TableHeadCell,
+    MenuButton
   } from "flowbite-svelte";
   import type { PageData } from "./$types";
   import CreateGoalModal from "./CreateGoalModal.svelte";
 	import DeleteGoalModal from "./DeleteGoalModal.svelte";
+  import Month from "$lib/components/Month.svelte";
+
   export let data: PageData;
   let createGoalOpen = false;
   let deleteGoalOpen = false;
@@ -22,6 +18,9 @@
     goalToDelete = goal_id;
     deleteGoalOpen = true;
   }
+
+  const thisYear = new Date().getFullYear();
+  const thisMonth = new Date().getMonth();
 </script>
 
 <div class="py-20">
@@ -30,27 +29,29 @@
     <h1 class="text-3xl">Goals</h1>
     <Button size="sm" on:click={() => (createGoalOpen = true)}>New Goal</Button>
   </div>
-  <!-- Contacts Table -->
-  <Table shadow divClass="min-h-full">
-    <TableHead>
-      <TableHeadCell>Goal</TableHeadCell>
-      <TableHeadCell />
-    </TableHead>
-    <TableBody>
+  
+  <div>
+    {#if data.goals}
       {#each data.goals as goal, _i (goal.id)}
-        <TableBodyRow>
-          <TableBodyCell>{goal.goal ?? "--"}</TableBodyCell>
-          <TableBodyCell>
+        <div>
+          <div class="flex w-full items-center justify-between bg-gray-800 px-6">
+            <p>{goal.goal}</p>
             <MenuButton class="dots-menu dark:text-white" vertical name="Contact Menu" />
             <Dropdown placement="left-start">
               <DropdownItem href="/contacts/{goal.id}">Edit</DropdownItem>
               <DropdownItem slot="footer" on:click={() => handleGoalDelete(goal.id)}>Delete</DropdownItem>
             </Dropdown>
-          </TableBodyCell>
-        </TableBodyRow>
+          </div>
+          <div class="flex gap-6 px-6 pt-3 pb-6">
+            <!--Primer each para representar el historico-->
+            <Month year={thisYear} month={thisMonth - 1} />
+            <!--Componente month para el mes actual-->
+            <Month year={thisYear} month={thisMonth} />
+          </div>
+        </div>
       {/each}
-    </TableBody>
-  </Table>
+    {/if}
+  </div>
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
 <DeleteGoalModal bind:open={deleteGoalOpen} goalId={goalToDelete} data={data.deleteGoalForm} />
