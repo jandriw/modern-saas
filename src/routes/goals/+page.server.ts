@@ -19,7 +19,15 @@ export const load: PageServerLoad = async (event) => {
     return goals;
   }
 
-  async function getCompletedDays() {
+  interface CompletedDays {
+    [goal_id: string]: {
+      [year: string]: {
+        [month: string]: string[];
+      };
+    };
+  }
+  
+  async function getCompletedDays(): Promise<CompletedDays> {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
       .select("goal_id, date")
@@ -29,16 +37,102 @@ export const load: PageServerLoad = async (event) => {
       throw error(500, "Error fetching completed days, please try again later.");
     }
   
-    // Definir el tipo del objeto acumulador
-    const groupedDays: Record<string, string[]> = completedDays.reduce((acc, entry) => {
-      if (!acc[entry.goal_id]) {
-        acc[entry.goal_id] = [];
+    const groupedDays: CompletedDays = {};
+  
+    completedDays.forEach(({ goal_id, date }: { goal_id: string; date: string }) => {
+      const [year, month] = date.split("-");
+      if (!groupedDays[goal_id]) {
+        groupedDays[goal_id] = {};
       }
-      acc[entry.goal_id].push(entry.date);
-      return acc;
-    }, {} as Record<string, string[]>);
+      if (!groupedDays[goal_id][year]) {
+        groupedDays[goal_id][year] = {};
+      }
+      if (!groupedDays[goal_id][year][month]) {
+        groupedDays[goal_id][year][month] = [];
+      }
+      groupedDays[goal_id][year][month].push(date);
+    });
+  
+    // Rellenar los meses vacíos dentro del rango de fechas en el orden correcto
+    Object.keys(groupedDays).forEach((goal_id) => {
+      const goalEntries = Object.entries(groupedDays[goal_id]);
+      if (goalEntries.length === 0) return;
+      
+      const years = Object.keys(groupedDays[goal_id]).map(Number).sort((a, b) => a - b);
+      const firstYear = years[0];
+      const lastYear = years[years.length - 1];
+      
+      const firstMonth = Math.min(...Object.keys(groupedDays[goal_id][firstYear.toString()]).map(Number));
+      const lastMonth = Math.max(...Object.keys(groupedDays[goal_id][lastYear.toString()]).map(Number));
+      
+      const minDate = new Date(firstYear, firstMonth - 1, 1);
+      const maxDate = new Date(lastYear, lastMonth - 1, 1);
+      
+      let currentDate = new Date(minDate);
+      while (currentDate <= maxDate) {
+        const year = currentDate.getFullYear().toString();
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+        
+        if (!groupedDays[goal_id][year]) {
+          groupedDays[goal_id][year] = {};
+        }
+        if (!groupedDays[goal_id][year][month]) {
+          groupedDays[goal_id][year][month] = [];
+        }
+        
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+  
+      // Asegurar que los meses dentro de cada año están ordenados correctamente
+      Object.keys(groupedDays[goal_id]).forEach((year) => {
+        const sortedMonths = Object.keys(groupedDays[goal_id][year])
+          .map(Number)
+          .sort((a, b) => a - b)
+          .map((m) => m.toString().padStart(2, "0"));
+        
+        const sortedEntries: { [month: string]: string[] } = {};
+        sortedMonths.forEach((month) => {
+          sortedEntries[month] = groupedDays[goal_id][year][month];
+        });
+        groupedDays[goal_id][year] = sortedEntries;
+      });
+    });
   
     return groupedDays;
+  }
+
+  let days = await getCompletedDays()
+
+  function displayDates(groupedDays: CompletedDays): CompletedDays {
+    const filteredDays: CompletedDays = {};
+    
+    Object.keys(groupedDays).forEach((goal_id) => {
+      const allDates: { year: number; month: number }[] = [];
+      
+      Object.keys(groupedDays[goal_id]).forEach((year) => {
+        Object.keys(groupedDays[goal_id][year]).forEach((month) => {
+          allDates.push({ year: Number(year), month: Number(month) });
+        });
+      });
+      
+      allDates.sort((a, b) => a.year === b.year ? a.month - b.month : a.year - b.year);
+      
+      const lastFourMonths = allDates.slice(-4);
+      
+      filteredDays[goal_id] = {};
+      lastFourMonths.forEach(({ year, month }) => {
+        const yearStr = year.toString();
+        const monthStr = month.toString().padStart(2, "0");
+        
+        if (!filteredDays[goal_id][yearStr]) {
+          filteredDays[goal_id][yearStr] = {};
+        }
+        
+        filteredDays[goal_id][yearStr][monthStr] = groupedDays[goal_id][yearStr][monthStr];
+      });
+    });
+    
+    return filteredDays;
   }
   
   return {
@@ -49,7 +143,7 @@ export const load: PageServerLoad = async (event) => {
     deleteGoalForm: superValidate(deleteGoalSchema, {
       id: "delete",
     }),
-    dates: await getCompletedDays(),
+    info: displayDates(days),
     createDateForm: superValidate(createDateSchema, {
       id: "date"
     })

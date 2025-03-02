@@ -30,6 +30,8 @@
 
   const thisYear = new Date().getFullYear();
   const thisMonth = new Date().getMonth();
+
+  let displayedInfo = JSON.stringify(data.info, null, 4)
 </script>
 
 <div class="py-20">
@@ -62,6 +64,9 @@
       {/each}
     {/if}
   </div>
+  <pre>
+    {displayedInfo}
+  </pre>
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
 <DeleteGoalModal bind:open={deleteGoalOpen} goalId={goalToDelete} data={data.deleteGoalForm} />

@@ -15,22 +15,16 @@
       }
     },
   });
+
+  let today = new Date().toISOString().split('T')[0];
+
 </script>
 
 <Modal bind:open size="xs" autoclose={false} class="w-full">
   <form method="POST" action="?/addDate" class="flex flex-col space-y-6" use:enhance>
     <input type="hidden" name="goal_id" bind:value="{goalId}" />
-    <h3 class="text-xl font-medium">Mark today as done</h3>
-    {#if $errors._errors}
-      <span class="block text-red-600 dark:text-red-500">{$errors._errors}</span>
-    {/if}
-    <label class="space-y-2" for="date">
-      <span>Today</span>
-      <input type="text" name="date" bind:value={$form.date} />
-      {#if $errors.date}
-        <span class="block text-red-600 dark:text-red-500">{$errors.date}</span>
-      {/if}
-    </label>
-    <Button type="submit" class="w-full">Done !</Button>
+    <input type="hidden" name="date" bind:value="{today}" />
+    <h3 class="text-xl font-medium">Have you complete your goal today?</h3>
+    <Button type="submit" class="w-full">Done!</Button>
   </form>
 </Modal>
