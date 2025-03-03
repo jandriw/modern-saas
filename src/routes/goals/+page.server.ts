@@ -27,6 +27,13 @@ export const load: PageServerLoad = async (event) => {
     };
   }
   
+  interface FilteredDate {
+    goal_id: string;
+    year: number;
+    month: number;
+    dates: string[];
+  }
+  
   async function getCompletedDays(): Promise<CompletedDays> {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
@@ -84,29 +91,13 @@ export const load: PageServerLoad = async (event) => {
         
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
-  
-      // Asegurar que los meses dentro de cada año están ordenados correctamente
-      Object.keys(groupedDays[goal_id]).forEach((year) => {
-        const sortedMonths = Object.keys(groupedDays[goal_id][year])
-          .map(Number)
-          .sort((a, b) => a - b)
-          .map((m) => m.toString().padStart(2, "0"));
-        
-        const sortedEntries: { [month: string]: string[] } = {};
-        sortedMonths.forEach((month) => {
-          sortedEntries[month] = groupedDays[goal_id][year][month];
-        });
-        groupedDays[goal_id][year] = sortedEntries;
-      });
     });
   
     return groupedDays;
   }
-
-  let days = await getCompletedDays()
-
-  function displayDates(groupedDays: CompletedDays): CompletedDays {
-    const filteredDays: CompletedDays = {};
+  
+  function displayDates(groupedDays: CompletedDays): FilteredDate[] {
+    const filteredDates: FilteredDate[] = [];
     
     Object.keys(groupedDays).forEach((goal_id) => {
       const allDates: { year: number; month: number }[] = [];
@@ -121,21 +112,20 @@ export const load: PageServerLoad = async (event) => {
       
       const lastFourMonths = allDates.slice(-4);
       
-      filteredDays[goal_id] = {};
       lastFourMonths.forEach(({ year, month }) => {
-        const yearStr = year.toString();
-        const monthStr = month.toString().padStart(2, "0");
-        
-        if (!filteredDays[goal_id][yearStr]) {
-          filteredDays[goal_id][yearStr] = {};
-        }
-        
-        filteredDays[goal_id][yearStr][monthStr] = groupedDays[goal_id][yearStr][monthStr];
+        filteredDates.push({
+          goal_id,
+          year,
+          month,
+          dates: groupedDays[goal_id][year.toString()][month.toString().padStart(2, "0")],
+        });
       });
     });
     
-    return filteredDays;
+    return filteredDates;
   }
+
+  let days = await getCompletedDays()
   
   return {
     createGoalForm: superValidate(createGoalSchema, {
