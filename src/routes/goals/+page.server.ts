@@ -203,7 +203,6 @@ export const actions: Actions = {
     };
   },
   addDate: async (event) => {
-    console.log("addDate Submitted")
     const session = await event.locals.getSession();
     if (!session) {
       throw error(401, "Unauthorized");
