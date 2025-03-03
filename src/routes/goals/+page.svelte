@@ -19,14 +19,8 @@
   let goalToDelete: string;
   let goalToDone: string;
 
-
-
   const thisYear = new Date().getFullYear();
   const thisMonth = new Date().getMonth();
-
-  function checkGoal(goalId: string ) {
-    const abaliableData = data.info.every(obj => obj.goal_id !== goalId)
-  }
 
   function handleGoalDelete(goal_id: string) {
     goalToDelete = goal_id;
@@ -60,7 +54,7 @@
               <DropdownItem slot="footer" on:click={() => handleGoalDelete(goal.id)}>Delete</DropdownItem>
             </Dropdown>
           </div>
-          <div class="flex gap-6 px-6 pt-3 pb-6">
+          <div class="flex gap-6 px-5 pt-3 pb-6">
             {#if data.info.length === 0 || !data.info.some(obj => obj.goal_id === goal.id)}
               <Month year={thisYear} month={thisMonth} />
             {/if}
