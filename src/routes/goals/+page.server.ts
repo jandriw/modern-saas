@@ -27,8 +27,6 @@ export const load: PageServerLoad = async (event) => {
     };
   }
   
-  //TODO: los meses deben ser de 0 a 11 y no de 1 a 12.
-  //TODO: los goals sin ningun dato deben sacar el mes en cuestión vacío.
   async function getCompletedDays(): Promise<CompletedDays> {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
@@ -43,16 +41,18 @@ export const load: PageServerLoad = async (event) => {
   
     completedDays.forEach(({ goal_id, date }: { goal_id: string; date: string }) => {
       const [year, month] = date.split("-");
+      const jsMonth = (parseInt(month, 10) - 1).toString().padStart(2, "0"); // Convertir a formato JS
+      
       if (!groupedDays[goal_id]) {
         groupedDays[goal_id] = {};
       }
       if (!groupedDays[goal_id][year]) {
         groupedDays[goal_id][year] = {};
       }
-      if (!groupedDays[goal_id][year][month]) {
-        groupedDays[goal_id][year][month] = [];
+      if (!groupedDays[goal_id][year][jsMonth]) {
+        groupedDays[goal_id][year][jsMonth] = [];
       }
-      groupedDays[goal_id][year][month].push(date);
+      groupedDays[goal_id][year][jsMonth].push(date);
     });
   
     // Rellenar los meses vacíos dentro del rango de fechas en el orden correcto
@@ -67,13 +67,13 @@ export const load: PageServerLoad = async (event) => {
       const firstMonth = Math.min(...Object.keys(groupedDays[goal_id][firstYear.toString()]).map(Number));
       const lastMonth = Math.max(...Object.keys(groupedDays[goal_id][lastYear.toString()]).map(Number));
       
-      const minDate = new Date(firstYear, firstMonth - 1, 1);
-      const maxDate = new Date(lastYear, lastMonth - 1, 1);
+      const minDate = new Date(firstYear, firstMonth, 1);
+      const maxDate = new Date(lastYear, lastMonth, 1);
       
       let currentDate = new Date(minDate);
       while (currentDate <= maxDate) {
         const year = currentDate.getFullYear().toString();
-        const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+        const month = currentDate.getMonth().toString().padStart(2, "0");
         
         if (!groupedDays[goal_id][year]) {
           groupedDays[goal_id][year] = {};

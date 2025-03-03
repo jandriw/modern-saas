@@ -32,6 +32,7 @@
   const thisMonth = new Date().getMonth();
 
   let displayedInfo = JSON.stringify(data.info, null, 4)
+  let displayedGoals = JSON.stringify(data.goals, null, 4)
 </script>
 
 <div class="py-20">
@@ -66,6 +67,7 @@
   </div>
   <pre>
     {displayedInfo}
+    {displayedGoals}
   </pre>
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
