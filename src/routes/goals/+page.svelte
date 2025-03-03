@@ -12,11 +12,21 @@
 	import CreateDateModal from "./CreateDateModal.svelte";
 
   export let data: PageData;
+
   let createDateOpen = false;
   let createGoalOpen = false;
   let deleteGoalOpen = false;
   let goalToDelete: string;
   let goalToDone: string;
+
+
+
+  const thisYear = new Date().getFullYear();
+  const thisMonth = new Date().getMonth();
+
+  function checkGoal(goalId: string ) {
+    const abaliableData = data.info.every(obj => obj.goal_id !== goalId)
+  }
 
   function handleGoalDelete(goal_id: string) {
     goalToDelete = goal_id;
@@ -51,8 +61,13 @@
             </Dropdown>
           </div>
           <div class="flex gap-6 px-6 pt-3 pb-6">
+            {#if data.info.length === 0 || !data.info.some(obj => obj.goal_id === goal.id)}
+              <p>este mes se renderiza cuando no existen datos para el goal</p>
+              <Month year={thisYear} month={thisMonth} />
+            {/if}
             {#each data.info as info, _i}
               {#if (goal.id === info.goal_id)}
+                <p>este mes se renderiza cuando ya hay datos para el goal</p>
                 <Month year={info.year} month={info.month} completedDays={info.dates} />
               {/if}
             {/each}
