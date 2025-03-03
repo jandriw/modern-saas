@@ -16,6 +16,7 @@
     },
   });
 
+  //TODO: today debe calcularse en el momento de ejecutar el submit porque si no podria enviar el dia de ayer a partir de las 00:00h
   let today = new Date().toISOString().split('T')[0];
 
 </script>
