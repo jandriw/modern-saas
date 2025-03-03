@@ -19,6 +19,7 @@
     { label: "Home", href: "/" },
     { label: "Pricing", href: "/pricing" },
     { label: "Contacts", href: "/contacts" },
+    { label: "Goals", href: "/goals"}
   ];
   export let data: LayoutData;
   $: ({ session, supabase } = data);
