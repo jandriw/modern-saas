@@ -28,11 +28,7 @@
     createDateOpen = true
   }
 
-  const thisYear = new Date().getFullYear();
-  const thisMonth = new Date().getMonth();
-
   let displayedInfo = JSON.stringify(data.info, null, 4)
-  let displayedGoals = JSON.stringify(data.goals, null, 4)
 </script>
 
 <div class="py-20">
@@ -55,10 +51,11 @@
             </Dropdown>
           </div>
           <div class="flex gap-6 px-6 pt-3 pb-6">
-            <!--Primer each para representar el historico-->
-            <Month year={thisYear} month={thisMonth - 1} />
-            <!--Componente month para el mes actual-->
-            <Month year={thisYear} month={thisMonth} />
+            {#each data.info as info, _i}
+              {#if (goal.id === info.goal_id)}
+                <Month year={info.year} month={info.month} completedDays={info.dates} />
+              {/if}
+            {/each}
           </div>
           <button on:click={() => handleGoalCheck(goal.id)}>Check</button>
         </div>
@@ -67,7 +64,6 @@
   </div>
   <pre>
     {displayedInfo}
-    {displayedGoals}
   </pre>
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
