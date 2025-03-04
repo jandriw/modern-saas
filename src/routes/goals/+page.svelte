@@ -10,14 +10,18 @@
 	import DeleteGoalModal from "./DeleteGoalModal.svelte";
   import Month from "$lib/components/Month.svelte";
 	import CreateDateModal from "./CreateDateModal.svelte";
+	import DeleteDateModal from "./DeleteDateModal.svelte";
 
   export let data: PageData;
 
   let createDateOpen = false;
   let createGoalOpen = false;
   let deleteGoalOpen = false;
+  let deleteDateOpen = false;
+
   let goalToDelete: string;
   let goalToDone: string;
+  let goalToDeleteTodayProgess: string;
 
   const thisYear = new Date().getFullYear();
   const thisMonth = new Date().getMonth();
@@ -30,6 +34,11 @@
   function handleGoalCheck(goal_id: string) {
     goalToDone = goal_id
     createDateOpen = true
+  }
+
+  function handleDateDelete(goal_id: string) {
+    goalToDeleteTodayProgess = goal_id;
+    deleteDateOpen = true;
   }
 
   let displayedInfo = JSON.stringify(data.info, null, 4)
@@ -65,6 +74,7 @@
             {/each}
           </div>
           <button on:click={() => handleGoalCheck(goal.id)}>Check</button>
+          <button on:click={() => handleDateDelete(goal.id)}>Uncheck</button>
         </div>
       {/each}
     {/if}
@@ -76,3 +86,4 @@
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
 <DeleteGoalModal bind:open={deleteGoalOpen} goalId={goalToDelete} data={data.deleteGoalForm} />
 <CreateDateModal bind:open={createDateOpen} goalId={goalToDone} data={data.createDateForm} />
+<DeleteDateModal bind:open={deleteDateOpen} goalId={goalToDeleteTodayProgess} data={data.deleteDateForm} />

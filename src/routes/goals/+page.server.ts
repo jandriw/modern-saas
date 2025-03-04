@@ -1,7 +1,7 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { setError, superValidate } from "sveltekit-superforms/server";
-import { createDateSchema, createGoalSchema, deleteGoalSchema } from "$lib/schemas";
+import { createDateSchema, createGoalSchema, deleteGoalSchema, deleteDateSchema } from "$lib/schemas";
 import { supabaseAdmin } from "$lib/server/supabase-admin";
 
 export const load: PageServerLoad = async (event) => {
@@ -138,6 +138,9 @@ export const load: PageServerLoad = async (event) => {
     info: displayDates(days),
     createDateForm: superValidate(createDateSchema, {
       id: "date"
+    }),
+    deleteDateForm: superValidate(deleteDateSchema, {
+      id: "deleteDate"
     })
   };
 };
@@ -173,6 +176,7 @@ export const actions: Actions = {
       createGoalForm,
     };
   },
+
   deleteGoal: async (event) => {
     const session = await event.locals.getSession();
     if (!session) {
@@ -202,6 +206,7 @@ export const actions: Actions = {
       deleteGoalForm,
     };
   },
+
   addDate: async (event) => {
     const session = await event.locals.getSession();
     if (!session) {
@@ -231,6 +236,39 @@ export const actions: Actions = {
 
     return {
       createDateForm,
+    };
+  },
+
+  deleteDate: async (event) => {
+    const session = await event.locals.getSession();
+    if (!session) {
+      throw error(401, "Unauthorized");
+    }
+
+    const deleteDateForm = await superValidate(event.url, deleteDateSchema, {
+      id: "deleteDate",
+    });
+
+    if (!deleteDateForm.valid) {
+      return fail(400, {
+        deleteDateForm,
+      });
+    }
+
+    let today = new Date().toISOString().split('T')[0];
+
+    const { error: deleteDateError } = await event.locals.supabase
+      .from("dates")
+      .delete()
+      .eq("goal_id", deleteDateForm.data.id)
+      .eq("date", today);
+
+    if (deleteDateError) {
+      return setError(deleteDateForm, null, "Error deleting today's progress");
+    }
+
+    return {
+      deleteDateForm,
     };
   },
 };
