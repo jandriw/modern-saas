@@ -73,7 +73,10 @@
               {/if}
             {/each}
           </div>
-          <button on:click={() => handleGoalCheck(goal.id)}>Check</button>
+          <form method="POST" action="?/addDate">
+            <input type="hidden" name="goal_id" bind:value="{goal.id}" />
+            <button type="submit">Check</button>
+          </form>
           <button on:click={() => handleDateDelete(goal.id)}>Uncheck</button>
         </div>
       {/each}

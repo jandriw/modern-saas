@@ -1,13 +1,14 @@
 <script lang="ts">
+  //TODO: Delete this component. Not needed anymore.
   import type { CreateDateSchema } from "$lib/schemas";
   import { Button, Modal } from "flowbite-svelte";
+	import { component_subscribe } from "svelte/internal";
   import { superForm } from "sveltekit-superforms/client";
   import type { Validation } from "sveltekit-superforms/index";
   export let data: Validation<CreateDateSchema>;
   export let open = false;
   export let goalId: string;
   const { form, errors, enhance } = superForm(data, {
-    resetForm: true,
     onResult: ({ result }) => {
       if (result.type === "success") {
         open = false;
