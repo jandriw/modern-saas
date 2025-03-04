@@ -223,8 +223,10 @@ export const actions: Actions = {
       });
     }
 
+    let today = new Date().toISOString().split('T')[0];
+
     const { error: createDateError } = await supabaseAdmin.from("dates").insert({
-      date: createDateForm.data.date,
+      date: today,
       goal_id: createDateForm.data.goal_id,
       user_id: session.user.id,
     });

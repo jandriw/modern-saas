@@ -146,7 +146,6 @@ export type DeleteGoalSchema = typeof deleteGoalSchema;
 
 export const createDateSchema = z
   .object({
-    date: z.string(),
     goal_id: z.string()
   });
 

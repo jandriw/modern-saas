@@ -15,16 +15,11 @@
       }
     },
   });
-
-  //TODO: today debe calcularse en el momento de ejecutar el submit porque si no podria enviar el dia de ayer a partir de las 00:00h
-  let today = new Date().toISOString().split('T')[0];
-
 </script>
 
 <Modal bind:open size="xs" autoclose={false} class="w-full">
   <form method="POST" action="?/addDate" class="flex flex-col space-y-6" use:enhance>
     <input type="hidden" name="goal_id" bind:value="{goalId}" />
-    <input type="hidden" name="date" bind:value="{today}" />
     <h3 class="text-xl font-medium">Have you complete your goal today?</h3>
     <Button type="submit" class="w-full">Done!</Button>
   </form>
