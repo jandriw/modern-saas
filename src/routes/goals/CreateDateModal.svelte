@@ -2,7 +2,6 @@
   //TODO: Delete this component. Not needed anymore.
   import type { CreateDateSchema } from "$lib/schemas";
   import { Button, Modal } from "flowbite-svelte";
-	import { component_subscribe } from "svelte/internal";
   import { superForm } from "sveltekit-superforms/client";
   import type { Validation } from "sveltekit-superforms/index";
   export let data: Validation<CreateDateSchema>;
