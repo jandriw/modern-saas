@@ -10,8 +10,18 @@
 	import DeleteGoalModal from "./DeleteGoalModal.svelte";
   import Month from "$lib/components/Month.svelte";
 	import DeleteDateModal from "./DeleteDateModal.svelte";
+	import { goto } from "$app/navigation";
 
   export let data: PageData;
+
+  interface FilteredDate {
+    goal_id: string;
+    year: number;
+    month: number;
+    dates: string[];
+  }
+
+  let formAddDate: HTMLFormElement;
 
   let createGoalOpen = false;
   let deleteGoalOpen = false;
@@ -33,7 +43,41 @@
     deleteDateOpen = true;
   }
 
-  let displayedInfo = JSON.stringify(data.info, null, 4)
+  function getDatesForGoal(
+    data: FilteredDate[], 
+    goalId: string, 
+    year: number, 
+    month: number
+  ): string[] {
+    const result = data.find(
+      item => item.goal_id === goalId && item.year === year && item.month === month
+    );
+    return result ? result.dates : [];
+  }
+
+  $: dates = data.info
+
+
+	function handleFormToSubmit(goal_id: string) {
+		const registers = getDatesForGoal(dates, goal_id, thisYear, thisMonth)
+    let today = new Date().toISOString().split('T')[0];
+    let lastDate = registers[registers.length-1]
+
+    if (lastDate === today) {
+      console.log("Existe la fecha, mandar borrar")
+      console.log(lastDate)
+      handleDateDelete(goal_id)
+    } else {
+      console.log("No existe la fecha, mandar crear")
+      console.log(lastDate)
+      submitAddDate()
+    }
+	}
+
+  function submitAddDate() {
+    formAddDate.submit()
+  }
+
 </script>
 
 <div class="py-20">
@@ -65,18 +109,17 @@
               {/if}
             {/each}
           </div>
-          <form method="POST" action="?/addDate">
+          <form method="POST" action="?/addDate" bind:this={formAddDate}>
             <input type="hidden" name="goal_id" bind:value="{goal.id}" />
-            <button type="submit">Check</button>
           </form>
+
+          <button on:click={submitAddDate}>Check</button>
           <button on:click={() => handleDateDelete(goal.id)}>Uncheck</button>
+          <button on:click={() => handleFormToSubmit(goal.id)}>Test</button>
         </div>
       {/each}
     {/if}
   </div>
-  <pre>
-    {displayedInfo}
-  </pre>
 </div>
 <CreateGoalModal bind:open={createGoalOpen} data={data.createGoalForm} />
 <DeleteGoalModal bind:open={deleteGoalOpen} goalId={goalToDelete} data={data.deleteGoalForm} />
