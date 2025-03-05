@@ -10,7 +10,6 @@
 	import DeleteGoalModal from "./DeleteGoalModal.svelte";
   import Month from "$lib/components/Month.svelte";
 	import DeleteDateModal from "./DeleteDateModal.svelte";
-	import { goto } from "$app/navigation";
 
   export let data: PageData;
 
@@ -57,19 +56,14 @@
 
   $: dates = data.info
 
-
 	function handleFormToSubmit(goal_id: string) {
 		const registers = getDatesForGoal(dates, goal_id, thisYear, thisMonth)
     let today = new Date().toISOString().split('T')[0];
     let lastDate = registers[registers.length-1]
 
     if (lastDate === today) {
-      console.log("Existe la fecha, mandar borrar")
-      console.log(lastDate)
       handleDateDelete(goal_id)
     } else {
-      console.log("No existe la fecha, mandar crear")
-      console.log(lastDate)
       submitAddDate()
     }
 	}
