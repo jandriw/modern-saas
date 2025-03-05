@@ -64,13 +64,17 @@
     if (lastDate === today) {
       handleDateDelete(goal_id)
     } else {
-      submitAddDate()
+      submitAddDate(goal_id)
     }
 	}
 
-  function submitAddDate() {
-    formAddDate.submit()
+  function submitAddDate(goalId: string) {
+  // Encuentra el formulario correcto para este goal específico
+  const form = document.querySelector(`form[data-goal-id="${goalId}"]`) as HTMLFormElement;
+  if (form) {
+    form.submit();
   }
+}
 
 </script>
 
@@ -103,11 +107,11 @@
               {/if}
             {/each}
           </div>
-          <form method="POST" action="?/addDate" bind:this={formAddDate}>
+          <form method="POST" action="?/addDate" bind:this={formAddDate} data-goal-id={goal.id}>
             <input type="hidden" name="goal_id" bind:value="{goal.id}" />
           </form>
 
-          <button on:click={submitAddDate}>Check</button>
+          <button on:click={() => submitAddDate(goal.id)}>Check</button>
           <button on:click={() => handleDateDelete(goal.id)}>Uncheck</button>
           <button on:click={() => handleFormToSubmit(goal.id)}>Test</button>
         </div>
