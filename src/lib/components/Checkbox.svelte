@@ -3,12 +3,21 @@
 
   export let date;
   export let today = new Date();
-  // @ts-ignore
   export let status = null; // "checked" o "unchecked"
+  export let buttonClicked
 
-  // @ts-ignore
   function normalizeDate(d) {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function spare() {}
+
+  function handleClick() {
+    if( isToday ) {
+      buttonClicked()
+    } else {
+      spare()
+    }
   }
 
   let normalizedToday = normalizeDate(today);
@@ -16,16 +25,15 @@
 
   let isPast = normalizedDate < normalizedToday;
   let isToday = normalizedDate.getTime() === normalizedToday.getTime();
-  // @ts-ignore
   let isFuture = normalizedDate > normalizedToday;
-
-  function toggleCheck() {
-    if (isToday) {
-      // @ts-ignore
-      status = status === "checked" ? "unchecked" : "checked";
-    }
-  }
 </script>
+
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div 
+  class="checkbox {isPast ? `past ${status}` : isToday ? `today ${status}` : 'future'}" 
+  on:click={handleClick}
+>
+</div>
 
 <style>
   .checkbox {
@@ -47,6 +55,7 @@
     border-color: #666;
     color: white;
     opacity: 0.5;
+    cursor: default;
   }
 
   .past.checked::after {
@@ -72,13 +81,6 @@
   .future {
     background: #222;
     opacity: 1;
-    cursor: not-allowed;
+    cursor: default;
   }
 </style>
-
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<div 
-  class="checkbox {isPast ? `past ${status}` : isToday ? `today ${status}` : 'future'}" 
-  on:click={toggleCheck}
->
-</div>

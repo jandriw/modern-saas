@@ -99,21 +99,17 @@
           </div>
           <div class="flex gap-6 px-5 pt-3 pb-6">
             {#if data.info.length === 0 || !data.info.some(obj => obj.goal_id === goal.id)}
-              <Month year={thisYear} month={thisMonth} />
+              <Month year={thisYear} month={thisMonth} buttonClicked={() => handleFormToSubmit(goal.id)}/>
             {/if}
             {#each data.info as info, _i}
               {#if (goal.id === info.goal_id)}
-                <Month year={info.year} month={info.month} completedDays={info.dates} />
+                <Month year={info.year} month={info.month} completedDays={info.dates} buttonClicked={() => handleFormToSubmit(goal.id)}/>
               {/if}
             {/each}
           </div>
           <form method="POST" action="?/addDate" bind:this={formAddDate} data-goal-id={goal.id}>
             <input type="hidden" name="goal_id" bind:value="{goal.id}" />
           </form>
-
-          <button on:click={() => submitAddDate(goal.id)}>Check</button>
-          <button on:click={() => handleDateDelete(goal.id)}>Uncheck</button>
-          <button on:click={() => handleFormToSubmit(goal.id)}>Test</button>
         </div>
       {/each}
     {/if}
