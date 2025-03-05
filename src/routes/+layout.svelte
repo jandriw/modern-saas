@@ -18,8 +18,9 @@
   const navigation = [
     { label: "Home", href: "/" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Contacts", href: "/contacts" },
-    { label: "Goals", href: "/goals"}
+    { label: "Goals", href: "/goals" },
+    { label: "History", href: "/history" },
+    { label: "Stats", href: "/stats" }
   ];
   export let data: LayoutData;
   $: ({ session, supabase } = data);

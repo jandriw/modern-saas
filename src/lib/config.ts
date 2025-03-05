@@ -8,33 +8,33 @@ type ProductConfig = Record<ProductNames, { features: string[]; call_to_action: 
 export const productConfig: ProductConfig = {
   Free: {
     features: [
-      "✅ Up to 5 Contacts",
-      "❌ Community Support",
+      "✅ Up to 1 Goal",
+      "❌ Data History",
+      "❌ Devs Support",
+      "❌ Stats & Reports",
       "❌ Automatic Backups",
-      "❌ 24/7 Customer Support",
-      "❌ SSO",
     ],
     call_to_action: "Get Started",
   },
   Plus: {
     features: [
-      "✅ Up to 25 Contacts",
-      "✅ Community Support",
-      "✅ Automatic Backups",
-      "❌ 24/7 Customer Support",
-      "❌ SSO",
+      "✅ Up to 3 Goals",
+      "✅ Data History",
+      "✅ Devs Support",
+      "❌ Stats & Reports",
+      "❌ Automatic Backups",
     ],
-    call_to_action: "Start Free Trial",
+    call_to_action: "Get Started",
   },
   Pro: {
     features: [
-      "✅ Unlimited Contacts",
-      "✅ Community Support",
+      "✅ Unlimited Goals",
+      "✅ Data History",
+      "✅ Devs Support",
+      "✅ Stats & Reports",
       "✅ Automatic Backups",
-      "✅ 24/7 Customer Support",
-      "✅ SSO",
     ],
-    call_to_action: "Start Free Trial",
+    call_to_action: "Get Started",
   },
 };
 
