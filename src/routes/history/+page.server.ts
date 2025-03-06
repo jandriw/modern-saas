@@ -1,5 +1,5 @@
-import { error, fail, redirect } from "@sveltejs/kit";
-import type { Actions, PageServerLoad } from "./$types";
+import { error, redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
 import { setError, superValidate } from "sveltekit-superforms/server";
 import { createDateSchema, createGoalSchema, deleteGoalSchema, deleteDateSchema } from "$lib/schemas";
 import { supabaseAdmin } from "$lib/server/supabase-admin";
@@ -26,7 +26,7 @@ export const load: PageServerLoad = async (event) => {
       };
     };
   }
-  
+
   interface FilteredDate {
     goal_id: string;
     year: number;
@@ -95,8 +95,8 @@ export const load: PageServerLoad = async (event) => {
   
     return groupedDays;
   }
-  
-  function displayDates(groupedDays: CompletedDays): FilteredDate[] {
+
+  function displayAllDates(groupedDays: CompletedDays): FilteredDate[] {
     const filteredDates: FilteredDate[] = [];
     
     Object.keys(groupedDays).forEach((goal_id) => {
@@ -108,11 +108,11 @@ export const load: PageServerLoad = async (event) => {
         });
       });
       
+      // Mantenemos el ordenamiento cronológico
       allDates.sort((a, b) => a.year === b.year ? a.month - b.month : a.year - b.year);
       
-      const lastFourMonths = allDates.slice(-4);
-      
-      lastFourMonths.forEach(({ year, month }) => {
+      // En lugar de slice(-4), usamos todos los meses
+      allDates.forEach(({ year, month }) => {
         filteredDates.push({
           goal_id,
           year,
@@ -126,151 +126,9 @@ export const load: PageServerLoad = async (event) => {
   }
 
   let days = await getCompletedDays()
-  
+
   return {
-    createGoalForm: superValidate(createGoalSchema, {
-      id: "create",
-    }),
     goals: await getGoals(),
-    deleteGoalForm: superValidate(deleteGoalSchema, {
-      id: "delete",
-    }),
-    info: displayDates(days),
-    createDateForm: superValidate(createDateSchema, {
-      id: "date"
-    }),
-    deleteDateForm: superValidate(deleteDateSchema, {
-      id: "deleteDate"
-    })
+    dates: await displayAllDates(days)
   };
-};
-
-export const actions: Actions = {
-  createGoal: async (event) => {
-    const session = await event.locals.getSession();
-    if (!session) {
-      throw error(401, "Unauthorized");
-    }
-
-    const createGoalForm = await superValidate(event, createGoalSchema, {
-      id: "create",
-    });
-
-    if (!createGoalForm.valid) {
-      return fail(400, {
-        createGoalForm,
-      });
-    }
-
-    const { error: createGoalError } = await supabaseAdmin.from("goals").insert({
-      ...createGoalForm.data,
-      user_id: session.user.id,
-    });
-
-    if (createGoalError) {
-      console.log(createGoalError);
-      return setError(createGoalForm, null, "Error creating goal.");
-    }
-
-    return {
-      createGoalForm,
-    };
-  },
-
-  deleteGoal: async (event) => {
-    const session = await event.locals.getSession();
-    if (!session) {
-      throw error(401, "Unauthorized");
-    }
-
-    const deleteGoalForm = await superValidate(event.url, deleteGoalSchema, {
-      id: "delete",
-    });
-
-    if (!deleteGoalForm.valid) {
-      return fail(400, {
-        deleteGoalForm,
-      });
-    }
-
-    const { error: deleteGoalError } = await event.locals.supabase
-      .from("goals")
-      .delete()
-      .eq("id", deleteGoalForm.data.id);
-
-    if (deleteGoalError) {
-      return setError(deleteGoalForm, null, "Error deleting goal");
-    }
-
-    return {
-      deleteGoalForm,
-    };
-  },
-
-  addDate: async (event) => {
-    const session = await event.locals.getSession();
-    if (!session) {
-      throw error(401, "Unauthorized");
-    }
-
-    const createDateForm = await superValidate(event, createDateSchema, {
-      id: "date",
-    });
-
-    if (!createDateForm.valid) {
-      return fail(400, {
-        createDateForm,
-      });
-    }
-
-    let today = new Date().toISOString().split('T')[0];
-
-    const { error: createDateError } = await supabaseAdmin.from("dates").insert({
-      date: today,
-      goal_id: createDateForm.data.goal_id,
-      user_id: session.user.id,
-    });
-
-    if (createDateError) {
-      console.log(createDateError);
-      return setError(createDateForm, null, "Error creating date.");
-    }
-
-    return {
-      createDateForm,
-    };
-  },
-
-  deleteDate: async (event) => {
-    const session = await event.locals.getSession();
-    if (!session) {
-      throw error(401, "Unauthorized");
-    }
-
-    const deleteDateForm = await superValidate(event.url, deleteDateSchema, {
-      id: "deleteDate",
-    });
-
-    if (!deleteDateForm.valid) {
-      return fail(400, {
-        deleteDateForm,
-      });
-    }
-
-    let today = new Date().toISOString().split('T')[0];
-
-    const { error: deleteDateError } = await event.locals.supabase
-      .from("dates")
-      .delete()
-      .eq("goal_id", deleteDateForm.data.id)
-      .eq("date", today);
-
-    if (deleteDateError) {
-      return setError(deleteDateForm, null, "Error deleting today's progress");
-    }
-
-    return {
-      deleteDateForm,
-    };
-  },
 };

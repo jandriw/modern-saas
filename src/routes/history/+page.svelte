@@ -1,12 +1,30 @@
-<script>
+<script lang="ts">
+  import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+  import type { PageData } from "./$types";
   import Month from '$lib/components/Month.svelte';
+
+  export let data: PageData;
+
+  interface FilteredDate {
+    goal_id: string | null;
+    year: number;
+    month: number;
+    dates: string[];
+  }
+
+  let dropdownOpen = false
+
+  $: yearKey = `year-${year}`;
+  $: dates = data.dates
+  $: goals = data.goals
+  $: activeGoal = goals[0].goal
+  $: parsedDates = JSON.stringify(dates, null, 4)
+  $: goal_id = getGoalIdByGoal(activeGoal)
+  $: yearDates = filterByGoalAndYear(dates, goal_id, year)
+  $: showData = JSON.stringify(yearDates, null, 4)
   
   // Inicializar con el año actual pero permitir cambios
   let year = new Date().getFullYear();
-  /**
-	 * @type {never[]}
-	 */
-   export let completedDays = []; // Recibe las fechas marcadas como 'YYYY-MM-DD'
   
   function previousYear() {
     year -= 1;
@@ -15,18 +33,68 @@
   function nextYear() {
     year += 1;
   }
+
+  function setGoal(goal: string | null) {
+    if(!goal) {
+      dropdownOpen = false
+      return
+    }
+    activeGoal = goal
+    dropdownOpen = false
+  }
+
+  function getGoalIdByGoal( goalBuscado: any) {
+    const objetoEncontrado = data.goals.find((objeto: { goal: any; }) => objeto.goal === goalBuscado);
+    return objetoEncontrado ? objetoEncontrado.id : null;
+  }
+
+  function filterByGoalAndYear(
+  data: FilteredDate[],
+  goalId: string | null,
+  year: number
+): FilteredDate[] {
+  // Primero filtramos los objetos que coincidan con el goal_id y year
+  const filteredData = data.filter(
+    (item) => item.goal_id === goalId && item.year === year
+  );
+
+  // Creamos un objeto para almacenar los meses que ya existen
+  const existingMonths: Record<number, boolean> = {};
+  
+  filteredData.forEach((item) => {
+    existingMonths[item.month] = true;
+  });
+
+  // Creamos un array con todos los meses del año
+  const result: FilteredDate[] = [...filteredData];
+  
+  // Agregamos los meses faltantes con arrays de fechas vacíos
+  for (let month = 0; month <= 11; month++) {
+    if (!existingMonths[month]) {
+      result.push({
+        goal_id: goalId,
+        year: year,
+        month: month,
+        dates: []
+      });
+    }
+  }
+  
+  // Ordenamos el resultado por mes
+  return result.sort((a, b) => a.month - b.month);
+}
   
   // Función para manejar clics en los días
-  export let buttonClicked = () => {};
-  
-  // Array con los índices de los meses (0-11)
-  const months = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  
-  // Clave única para forzar la recreación de los componentes Month cuando cambia el año
-  $: yearKey = `year-${year}`;
+  function buttonClicked () {};
 </script>
 
 <div class="year-container">
+  <Button>{activeGoal}</Button>
+  <Dropdown {activeGoal} bind:open={dropdownOpen}>
+    {#each goals as goal}
+      <DropdownItem on:click={() => setGoal(goal.goal)}>{goal.goal}</DropdownItem>
+    {/each}
+  </Dropdown>
   <div class="year-header">
     <button class="arrow-button" on:click={previousYear}>←</button>
     <h1 class="year-title">{year}</h1>
@@ -34,13 +102,17 @@
   </div>
   
   <div class="months-grid">
-    {#each months as month (yearKey + '-' + month)}
+    {#each yearDates as month}
       <div class="month-item">
-        <Month {year} {month} {completedDays} {buttonClicked} />
+        <Month year={month.year} month={month.month} completedDays={month.dates} {buttonClicked} />
       </div>
     {/each}
   </div>
 </div>
+
+<pre>
+  {showData}
+</pre>
 
 <style>
   .year-container {
@@ -55,6 +127,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 20px;
+    margin-top: 20px;
     width: 100%;
   }
   
