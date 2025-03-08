@@ -1,6 +1,7 @@
 <script>
   // @ts-ignore
   import Month from "$lib/components/Month.svelte";
+	import TestChart from "$lib/components/TestChart.svelte";
 
   let year = 2025
   let month = 1
@@ -28,4 +29,5 @@
 
 <main style="display: flex; gap: 10px;">
   <Month {year} {month} completedDays={completedDays} {buttonClicked}/>
+  <TestChart />
 </main>
