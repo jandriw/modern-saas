@@ -223,10 +223,13 @@ export const actions: Actions = {
       });
     }
 
-    let today = new Date().toISOString().split('T')[0];
+    let today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset()); // Ajusta a la zona horaria local
+    let formattedDate = today.toISOString().split('T')[0]; // Obtiene solo la parte de la fecha
+
 
     const { error: createDateError } = await supabaseAdmin.from("dates").insert({
-      date: today,
+      date: formattedDate,
       goal_id: createDateForm.data.goal_id,
       user_id: session.user.id,
     });
