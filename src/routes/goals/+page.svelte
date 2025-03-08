@@ -32,6 +32,8 @@
   const thisYear = new Date().getFullYear();
   const thisMonth = new Date().getMonth();
 
+  let today = new Date().toLocaleDateString("sv-SE"); // Formato YYYY-MM-DD
+
   function handleGoalDelete(goal_id: string) {
     goalToDelete = goal_id;
     deleteGoalOpen = true;
@@ -58,7 +60,7 @@
 
 	function handleFormToSubmit(goal_id: string) {
 		const registers = getDatesForGoal(dates, goal_id, thisYear, thisMonth)
-    let today = new Date().toISOString().split('T')[0];
+    let today = new Date().toLocaleDateString("sv-SE");
     let lastDate = registers[registers.length-1]
 
     if (lastDate === today) {
@@ -109,6 +111,7 @@
           </div>
           <form method="POST" action="?/addDate" bind:this={formAddDate} data-goal-id={goal.id}>
             <input type="hidden" name="goal_id" bind:value="{goal.id}" />
+            <input type="hidden" name="date" bind:value="{today}" />
           </form>
         </div>
       {/each}

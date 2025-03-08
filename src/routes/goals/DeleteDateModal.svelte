@@ -13,6 +13,8 @@
       }
     },
   });
+
+  let today = new Date().toLocaleDateString("sv-SE");
 </script>
 
 <Modal bind:open size="xs" autoclose={false}>
@@ -33,7 +35,9 @@
       Are you sure you want to delete today's progress?
     </h3>
     <div class="flex items-center justify-center">
-      <form method="POST" action="?/deleteDate&id={goalId}" use:enhance>
+      <form method="POST" action="?/deleteDate&id" use:enhance>
+        <input type="hidden" name="date" bind:value="{today}" />
+        <input type="hidden" name="id" bind:value="{goalId}" />
         <Button type="submit" color="red" class="mr-2">Yes, I'm sure</Button>
       </form>
       <Button color="alternative" on:click={() => (open = false)}>No, cancel</Button>

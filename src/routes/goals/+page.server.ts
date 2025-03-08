@@ -223,13 +223,8 @@ export const actions: Actions = {
       });
     }
 
-    let today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset()); // Ajusta a la zona horaria local
-    let formattedDate = today.toISOString().split('T')[0]; // Obtiene solo la parte de la fecha
-
-
     const { error: createDateError } = await supabaseAdmin.from("dates").insert({
-      date: formattedDate,
+      date: createDateForm.data.date,
       goal_id: createDateForm.data.goal_id,
       user_id: session.user.id,
     });
@@ -250,7 +245,7 @@ export const actions: Actions = {
       throw error(401, "Unauthorized");
     }
 
-    const deleteDateForm = await superValidate(event.url, deleteDateSchema, {
+    const deleteDateForm = await superValidate(event, deleteDateSchema, {
       id: "deleteDate",
     });
 
@@ -260,13 +255,11 @@ export const actions: Actions = {
       });
     }
 
-    let today = new Date().toISOString().split('T')[0];
-
     const { error: deleteDateError } = await event.locals.supabase
       .from("dates")
       .delete()
       .eq("goal_id", deleteDateForm.data.id)
-      .eq("date", today);
+      .eq("date", deleteDateForm.data.date);
 
     if (deleteDateError) {
       return setError(deleteDateForm, null, "Error deleting today's progress");

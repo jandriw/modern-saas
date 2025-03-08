@@ -146,13 +146,15 @@ export type DeleteGoalSchema = typeof deleteGoalSchema;
 
 export const createDateSchema = z
   .object({
-    goal_id: z.string()
+    goal_id: z.string(),
+    date: z.string()
   });
 
 export type CreateDateSchema = typeof createDateSchema;
 
 export const deleteDateSchema = z.object({
-  id: z.string()
+  id: z.string(),
+  date: z.string()
 });
 
 export type DeleteDateSchema = typeof deleteDateSchema;
