@@ -1,5 +1,6 @@
 <script>
   // @ts-ignore
+  import CompletionChart from "$lib/components/CompletionChart.svelte";
   import Month from "$lib/components/Month.svelte";
 	import TestChart from "$lib/components/TestChart.svelte";
 
@@ -31,3 +32,5 @@
   <Month {year} {month} completedDays={completedDays} {buttonClicked}/>
   <TestChart />
 </main>
+
+<CompletionChart />
