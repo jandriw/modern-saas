@@ -18,9 +18,6 @@
   $: daysInMonth = new Date(year, month + 1, 0).getDate();
   $: today = new Date();
   
-  // Verificamos la reactividad
-  $: console.log('Month component - Year:', year, 'Month:', month);
-  
   // Normaliza una fecha a formato 'YYYY-MM-DD'
   function formatDate(date) {
     return date.toISOString().split("T")[0];
