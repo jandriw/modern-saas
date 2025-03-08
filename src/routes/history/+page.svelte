@@ -14,14 +14,11 @@
 
   let dropdownOpen = false
 
-  $: yearKey = `year-${year}`;
   $: dates = data.dates
   $: goals = data.goals
   $: activeGoal = goals[0].goal
-  $: parsedDates = JSON.stringify(dates, null, 4)
   $: goal_id = getGoalIdByGoal(activeGoal)
   $: yearDates = filterByGoalAndYear(dates, goal_id, year)
-  $: showData = JSON.stringify(yearDates, null, 4)
   
   // Inicializar con el año actual pero permitir cambios
   let year = new Date().getFullYear();
@@ -98,7 +95,13 @@
   <div class="year-header">
     <button class="arrow-button" on:click={previousYear}>←</button>
     <h1 class="year-title">{year}</h1>
-    <button class="arrow-button" on:click={nextYear}>→</button>
+    <button 
+      class="arrow-button {year >= new Date().getFullYear() ? 'disabled' : ''}" 
+      on:click={nextYear} 
+      disabled={year >= new Date().getFullYear()}
+    >
+    →
+    </button>
   </div>
   
   <div class="months-grid">
@@ -109,10 +112,6 @@
     {/each}
   </div>
 </div>
-
-<pre>
-  {showData}
-</pre>
 
 <style>
   .year-container {
@@ -166,6 +165,12 @@
   .month-item {
     display: flex;
     justify-content: center;
+  }
+
+  .disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    opacity: 0.5;
   }
   
   @media (max-width: 900px) {

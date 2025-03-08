@@ -1,10 +1,10 @@
 <script>
-// @ts-nocheck
-
+  // @ts-nocheck
   export let date;
   export let today = new Date();
   export let status = null; // "checked" o "unchecked"
-  export let buttonClicked
+  export let buttonClicked;
+  export let year; // Recibe el año que representa Month.svelte
 
   function normalizeDate(d) {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -13,24 +13,26 @@
   function spare() {}
 
   function handleClick() {
-    if( isToday ) {
-      buttonClicked()
+    if (isToday) {
+      buttonClicked();
     } else {
-      spare()
+      spare();
     }
   }
 
-  let normalizedToday = normalizeDate(today);
   let normalizedDate = normalizeDate(date);
+  
+  // Normalizamos "hoy" al mismo año que el año representado por Month
+  let normalizedToday = new Date(year, today.getMonth(), today.getDate());
 
-  let isPast = normalizedDate < normalizedToday;
-  let isToday = normalizedDate.getTime() === normalizedToday.getTime();
-  let isFuture = normalizedDate > normalizedToday;
+  $: isPast = year < today.getFullYear() || (year === today.getFullYear() && normalizedDate < normalizedToday);
+  $: isToday = year === today.getFullYear() && normalizedDate.getTime() === normalizedToday.getTime();
+  $: isFuture = year > today.getFullYear() || (year === today.getFullYear() && normalizedDate > normalizedToday);
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div 
-  class="checkbox {isPast ? `past ${status}` : isToday ? `today ${status}` : 'future'}" 
+  class="checkbox {isPast ? 'past ' + status : isToday ? 'today ' + status : 'future'}" 
   on:click={handleClick}
 >
 </div>

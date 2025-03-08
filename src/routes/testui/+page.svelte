@@ -2,6 +2,11 @@
   // @ts-ignore
   import Month from "$lib/components/Month.svelte";
 
+  let year = 2025
+  let month = 1
+
+  function buttonClicked() {}
+
   // Fechas en las que se cumplió el objetivo (formato 'YYYY-MM-DD')
   let completedDays = [
     "2025-02-01",
@@ -15,8 +20,12 @@
 
   const thisYear = new Date().getFullYear();
   const thisMonth = new Date().getMonth();
+  const today = new Date(). getDate();
 </script>
 
+<input type="number" bind:value={year}>
+<input type="number" bind:value={month}>
+
 <main style="display: flex; gap: 10px;">
-  <Month year={thisYear} month={thisMonth} completedDays={completedDays} />
+  <Month {year} {month} completedDays={completedDays} {buttonClicked}/>
 </main>
