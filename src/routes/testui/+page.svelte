@@ -7,6 +7,8 @@
   let year = 2025
   let month = 1
 
+  let completion = [80, 15]
+
   function buttonClicked() {}
 
   // Fechas en las que se cumplió el objetivo (formato 'YYYY-MM-DD')
@@ -33,4 +35,4 @@
   <TestChart />
 </main>
 
-<CompletionChart />
+<CompletionChart array={completion}/>
