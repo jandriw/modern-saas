@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+  import { filterMonthsForCompletion } from '$lib/stores/stats';
 
   export let array = [50, 50]
   
@@ -11,6 +12,7 @@
 
   let dropdownOpen = false
   const periods = ["Last Month", "Last 3 Months", "Last Year", "All Data"]
+  const monthsPeriods = [1, 3, 12, 0]
 
   $: activePeriod = periods[1]
 
@@ -21,6 +23,7 @@
     }
     activePeriod = period
     dropdownOpen = false
+    filterMonthsForCompletion.set(monthsPeriods[periods.indexOf(period)])
   }
 
   $: options = {
