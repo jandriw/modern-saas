@@ -10,6 +10,8 @@ export const load: PageServerLoad = async (event) => {
     throw redirect(302, "/login");
   }
 
+  let urlGoal = event.params.goal_id
+
   async function getGoals() {
     const { data: goals, error: goalsError } = await event.locals.supabase.from("goals").select("*");
 
@@ -129,6 +131,7 @@ export const load: PageServerLoad = async (event) => {
 
   return {
     goals: await getGoals(),
-    dates: await displayAllDates(days)
+    dates: await displayAllDates(days),
+    urlGoal: urlGoal
   };
 };

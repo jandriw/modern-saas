@@ -95,7 +95,7 @@
             <p>{goal.goal}</p>
             <MenuButton class="dots-menu dark:text-white" vertical name="Contact Menu" />
             <Dropdown placement="left-start">
-              <DropdownItem href="/contacts/{goal.id}">Edit</DropdownItem>
+              <DropdownItem href="/stats/{goal.id}">Stats</DropdownItem>
               <DropdownItem slot="footer" on:click={() => handleGoalDelete(goal.id)}>Delete</DropdownItem>
             </Dropdown>
           </div>
