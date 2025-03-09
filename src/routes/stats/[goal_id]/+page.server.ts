@@ -11,7 +11,7 @@ export const load: PageServerLoad = async (event) => {
   }
 
   let urlGoal = event.params.goal_id
-
+  
   async function getGoals() {
     const { data: goals, error: goalsError } = await event.locals.supabase.from("goals").select("*");
 
