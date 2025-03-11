@@ -1,6 +1,8 @@
 <script lang="ts">
-  import CompletionChart from "$lib/components/CompletionChart.svelte";
+  import BarChart from "$lib/components/BarChart.svelte";
+import CompletionChart from "$lib/components/CompletionChart.svelte";
   import { filterMonthsForCompletion } from "$lib/stores/stats";
+	import { set_attributes } from "svelte/internal";
   import type { PageData } from "./$types";
 
   export let data: PageData;
@@ -13,10 +15,16 @@
   }
 
   let goal = getGoalByGoalID(data.urlGoal)
+  let firstRegister = getFirstRegister(data.dates)
   let showData = JSON.stringify(data.dates, null, 4)
 
   $: filterMonths = filterByLastMonths(data.dates, $filterMonthsForCompletion)
+  $: completionSeries = calculateGoalProgress(filterMonths, firstRegister)
+  $: barData = transformData(filterMonths)
+
   $: parsedData = JSON.stringify(filterMonths, null, 4)
+  $: showSeries = JSON.stringify(completionSeries, null, 4)
+  $: parseBardata = JSON.stringify(barData)
 
   if (!goal) {
     goal = "Error 404: This goal doesn't exist."
@@ -39,17 +47,80 @@
     });
   }
 
+  function getFirstRegister(data: FilteredDate[]): string | null {
+      for (const item of data) {
+          if (item.dates.length > 0) {
+              return item.dates[0]; // La primera fecha encontrada
+          }
+      }
+      return null; // Si no hay fechas en ningún objeto
+  }
+
+  function calculateGoalProgress(data: FilteredDate[], firstRegister: string | null): number[] {
+    // Obtener la fecha de inicio (primer día del primer mes del array)
+    const startYear = data[0].year;
+    const startMonth = data[0].month + 1; // Ajustar a 1-indexed
+    let startDate = new Date(startYear, startMonth - 1, 1);
+    
+    // Determinar la fecha de inicio real si firstRegister no es null
+    if (firstRegister) {
+        const firstRegisterDate = new Date(firstRegister);
+        if (startDate < firstRegisterDate) {
+            startDate = firstRegisterDate;
+        }
+    }
+    
+    // Obtener la fecha de hoy
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Generar todas las fechas en el rango
+    const allDates = new Set();
+    let currentDate = new Date(startDate);
+    let totalDays = 1; // Empezamos en 1 para incluir el primer día
+    while (currentDate < today) { // Cambiamos la condición para asegurar contar el último día
+        const dateStr = currentDate.toISOString().split('T')[0];
+        allDates.add(dateStr);
+        currentDate.setDate(currentDate.getDate() + 1);
+        totalDays++; // Incrementar el total de días
+    }
+    
+    // Obtener los días cumplidos
+    const completedDates = new Set();
+    data.forEach(entry => {
+        entry.dates.forEach(date => completedDates.add(date));
+    });
+    
+    // Calcular días cumplidos y fallados
+    const completedDays = completedDates.size;
+    const failedDays = totalDays - completedDays;
+    
+    return [completedDays, failedDays];
+}
+
+  function transformData(inputArray: FilteredDate[]) {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    const series = inputArray.map(item => item.dates.length);
+    const categories = inputArray.map(item => monthNames[item.month]);
+    
+    return { series, categories };
+  }
+
 </script>
 {#if goal === "Error 404: This goal doesn't exist."}
   <h2>{goal}</h2>
 {:else}
   <h2>{goal}</h2>
-  <CompletionChart />
+  <div class="flex gap-3">
+    <CompletionChart {completionSeries} />
+    <BarChart dates={barData.series} categories={barData.categories}/>
+  </div>
 {/if}
-<pre>
-  {showData}
-</pre>
-<p>Other Data:</p>
+<p>{firstRegister}</p>
 <pre>
   {parsedData}
+</pre>
+<pre>
+  {showSeries}
 </pre>
