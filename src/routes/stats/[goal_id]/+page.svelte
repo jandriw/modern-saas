@@ -1,9 +1,17 @@
 <script lang="ts">
   import BarChart from "$lib/components/BarChart.svelte";
-import CompletionChart from "$lib/components/CompletionChart.svelte";
+  import CompletionChart from "$lib/components/CompletionChart.svelte";
+  import Streak from "$lib/components/Streak.svelte";
+  import Consistency from "$lib/components/Consistency.svelte";
   import { filterMonthsForCompletion } from "$lib/stores/stats";
-	import { set_attributes } from "svelte/internal";
+	import { onMount } from "svelte";
   import type { PageData } from "./$types";
+  import {
+    Button,
+    Dropdown,
+    Chevron,
+    DropdownItem,
+  } from "flowbite-svelte";
 
   export let data: PageData;
 
@@ -22,9 +30,14 @@ import CompletionChart from "$lib/components/CompletionChart.svelte";
   $: completionSeries = calculateGoalProgress(filterMonths, firstRegister)
   $: barData = transformData(filterMonths)
 
+  $: allData = JSON.stringify(data.dates, null, 4)
   $: parsedData = JSON.stringify(filterMonths, null, 4)
   $: showSeries = JSON.stringify(completionSeries, null, 4)
   $: parseBardata = JSON.stringify(barData)
+
+  onMount(() => {
+    filterMonths = filterByLastMonths(data.dates, $filterMonthsForCompletion)
+  })
 
   if (!goal) {
     goal = "Error 404: This goal doesn't exist."
@@ -111,16 +124,26 @@ import CompletionChart from "$lib/components/CompletionChart.svelte";
 {#if goal === "Error 404: This goal doesn't exist."}
   <h2>{goal}</h2>
 {:else}
-  <h2>{goal}</h2>
+<div class="flex flex-col items-center w-fit">
+  <div>
+    <h2>{goal}</h2>
+  </div>
   <div class="flex gap-3">
     <CompletionChart {completionSeries} />
     <BarChart dates={barData.series} categories={barData.categories}/>
+    <div class="flex flex-col gap-4">
+      <Button color="light"><Chevron>See other</Chevron></Button>
+        <Dropdown>
+          <DropdownItem href="/account">Settings</DropdownItem>
+          <DropdownItem href="/account">Billing</DropdownItem>
+        </Dropdown>
+      <Streak streak={"Best Streak"}/>
+      <Streak />
+    </div>
   </div>
+  <Consistency data={data.dates} />
+</div>
 {/if}
-<p>{firstRegister}</p>
 <pre>
-  {parsedData}
-</pre>
-<pre>
-  {showSeries}
+  {allData}
 </pre>

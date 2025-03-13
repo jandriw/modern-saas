@@ -7,7 +7,7 @@
   let year = 2025
   let month = 1
 
-  let completion = [80, 15]
+  let completionSeries = [80, 15]
 
   function buttonClicked() {}
 
@@ -35,4 +35,4 @@
   <TestChart />
 </main>
 
-<CompletionChart array={completion}/>
+<CompletionChart {completionSeries} />
