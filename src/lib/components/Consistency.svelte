@@ -15,63 +15,75 @@
   const healthColor = healthColors[calculatedData.health];
 
   function calculateConsistency(data: FilteredDate[]) {
-    const MS_PER_DAY = 1000 * 60 * 60 * 24;
-    const MS_PER_WEEK = MS_PER_DAY * 7;
-    
-    // Convertir las fechas en un solo array
-    const allDates = data.flatMap(entry => entry.dates.map(date => new Date(date)));
+    if (!data || data.length === 0) {
+        return { score: 0, health: 0, message: "Not enough data to calculate consistency." };
+    }
+
+    // Convertir las fechas a objetos Date y ordenarlas
+    let allDates = data.flatMap(entry => entry.dates.map(date => new Date(date))).sort((a, b) => a.getTime() - b.getTime());
 
     if (allDates.length === 0) {
         return { score: 0, health: 0, message: "Not enough data to calculate consistency." };
     }
 
-    // Ordenar fechas y obtener la primera y última
-    allDates.sort((a, b) => a.getTime() - b.getTime());
-
     const firstDate = allDates[0];
     const lastDate = allDates[allDates.length - 1];
+    const totalDays = Math.ceil((lastDate.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-    // Calcular semanas transcurridas
-    const totalWeeks = Math.ceil((lastDate.getTime() - firstDate.getTime()) / MS_PER_WEEK);
-
-    if (totalWeeks < 4) {
-        return { score: 0, health: 0, message: "More weeks of tracking are needed for an accurate consistency calculation (0 to 4 weeks)." };
+    if (totalDays < 28) {
+        return { score: 0, health: 0, message: "More weeks of tracking are needed." };
     }
 
-    // Agrupar por semana
+    // Calcular días sin actividad
+    const uniqueActiveDays = new Set(allDates.map(date => date.toDateString())).size;
+    const inactivityPercentage = ((totalDays - uniqueActiveDays) / totalDays) * 100;
+
+    // Aplicar penalización basada en el porcentaje de inactividad
+    let gapPenalty = 0;
+    if (inactivityPercentage > 50) {
+        gapPenalty = 50;
+    } else if (inactivityPercentage > 40) {
+        gapPenalty = 40;
+    } else if (inactivityPercentage > 30) {
+        gapPenalty = 30;
+    } else if (inactivityPercentage > 15) {
+        gapPenalty = 20;
+    } else if (inactivityPercentage > 7) {
+        gapPenalty = 10;
+    }
+
+    // Agrupar por semana y calcular la variabilidad en la actividad
     const weeks = new Map();
     allDates.forEach(date => {
         const weekStart = new Date(date);
-        weekStart.setDate(date.getDate() - date.getDay()); // Normalizar a inicio de la semana (domingo)
+        weekStart.setDate(date.getDate() - date.getDay()); // Ajustar al inicio de la semana (domingo)
         const weekKey = weekStart.toISOString().split('T')[0];
 
-        if (!weeks.has(weekKey)) weeks.set(weekKey, 0);
-        weeks.set(weekKey, weeks.get(weekKey) + 1);
+        weeks.set(weekKey, (weeks.get(weekKey) || 0) + 1);
     });
 
-    // Obtener valores semanales y calcular desviación de frecuencia
-    const weeklyCounts = [...weeks.values()];
+    const weeklyCounts = Array.from(weeks.values());
     const avg = weeklyCounts.reduce((sum, val) => sum + val, 0) / weeklyCounts.length;
     const variance = weeklyCounts.reduce((sum, val) => sum + Math.pow(val - avg, 2), 0) / weeklyCounts.length;
-    const consistencyScore = Math.max(0, 100 - Math.sqrt(variance) * 10); // Normalización a 0-100
+    let consistencyScore = Math.max(0, 100 - Math.sqrt(variance) * 10 - gapPenalty);
 
-    // Determinar el mensaje y la salud del dato
-    let message = "Strong consistency detected with a solid data foundation (16+ weeks).";
-    let health = 3; // High
+    // Determinar el mensaje y la salud
+    let message = "Strong consistency detected.";
+    let health = 3;
 
-    if (totalWeeks < 8) {
-        message = "Initial pattern detected, but variations may still occur (4 to 8 weeks).";
-        health = 1; // Low
-    } else if (totalWeeks < 12) {
-        message = "More stable pattern detected, but improvements are possible (8 to 12 weeks).";
-        health = 2; // Medium
-    } else if (totalWeeks < 16) {
-        message = "Reliable data for evaluating consistency (12 to 16 weeks).";
-        health = 2; // Medium
+    if (totalDays < 56) {
+        message = "Initial pattern detected (4 to 8 weeks).";
+        health = 1;
+    } else if (totalDays < 84) {
+        message = "More stable pattern (8 to 12 weeks).";
+        health = 2;
+    } else if (totalDays < 112) {
+        message = "Reliable data (12 to 16 weeks).";
+        health = 2;
     }
-    
+
     return { score: Math.round(consistencyScore), health, message };
-  }
+}
 </script>
 
 <div class="flex flex-col w-48 items-center bg-gray-800 rounded-md border border-gray-700 px-6 py-4">
@@ -87,7 +99,7 @@
       <p>i</p>
     </div>
     <Tooltip placement="top">
-        <p>This metric evaluates consistency over time.</p>
+        <p>Consistency is measured based on your weekly regularity, activity variability, and periods without recorded data. To improve, maintain a steady pace and avoid long breaks. 🚀</p>
     </Tooltip>
   </div>
   <p class="text-white text-xl font-semibold w-full text-left">Consistency</p>
