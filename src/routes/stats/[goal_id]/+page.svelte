@@ -3,6 +3,7 @@
   import CompletionChart from "$lib/components/CompletionChart.svelte";
   import Streak from "$lib/components/Streak.svelte";
   import Consistency from "$lib/components/Consistency.svelte";
+  import DaylyHeatmap from "$lib/components/DaylyHeatmap.svelte";
   import { filterMonthsForCompletion } from "$lib/stores/stats";
 	import { onMount } from "svelte";
   import type { PageData } from "./$types";
@@ -142,6 +143,7 @@
     </div>
   </div>
   <Consistency data={data.dates} />
+  <DaylyHeatmap dataFromParent={data.dates} />
 </div>
 {/if}
 <pre>
