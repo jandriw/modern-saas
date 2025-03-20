@@ -30,6 +30,8 @@
   $: filterMonths = filterByLastMonths(data.dates, $filterMonthsForCompletion)
   $: completionSeries = calculateGoalProgress(filterMonths, firstRegister)
   $: barData = transformData(filterMonths)
+  $: bestStreak = getBestStreak(data.dates)
+  $: currentStreak = getCurrentStreak(data.dates)
 
   $: allData = JSON.stringify(data.dates, null, 4)
   $: parsedData = JSON.stringify(filterMonths, null, 4)
@@ -121,6 +123,44 @@
     return { series, categories };
   }
 
+  function parseDates(data: FilteredDate[]): number[] {
+    return data
+        .flatMap(entry => entry.dates.map(date => new Date(date).getTime()))
+        .sort((a, b) => a - b);
+  }
+
+  function getBestStreak(data: FilteredDate[]) {
+      const dates = parseDates(data);
+      let maxStreak = 0, currentStreak = 1;
+      
+      for (let i = 1; i < dates.length; i++) {
+          const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+          if (diff === 1) {
+              currentStreak++;
+          } else {
+              maxStreak = Math.max(maxStreak, currentStreak);
+              currentStreak = 1;
+          }
+      }
+      return Math.max(maxStreak, currentStreak);
+  }
+
+  function getCurrentStreak(data: FilteredDate[]) {
+      const dates = parseDates(data);
+      if (dates.length === 0) return 0;
+      
+      let streak = 1;
+      for (let i = dates.length - 1; i > 0; i--) {
+          const diff = (dates[i] - dates[i - 1]) / (1000 * 60 * 60 * 24);
+          if (diff === 1) {
+              streak++;
+          } else if (diff > 1) {
+              break;
+          }
+      }
+      return streak;
+  }
+
 </script>
 {#if goal === "Error 404: This goal doesn't exist."}
   <h2>{goal}</h2>
@@ -138,8 +178,8 @@
           <DropdownItem href="/account">Settings</DropdownItem>
           <DropdownItem href="/account">Billing</DropdownItem>
         </Dropdown>
-      <Streak streak={"Best Streak"}/>
-      <Streak />
+      <Streak streak={"Best Streak"} streakNumber={bestStreak}/>
+      <Streak streakNumber={currentStreak}/>
     </div>
   </div>
   <Consistency data={data.dates} />
