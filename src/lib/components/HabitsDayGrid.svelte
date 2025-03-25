@@ -23,12 +23,14 @@
     completedCount: number;
     longestMissedStreak: number;
     habitBuilded: boolean;
+    missedDaysCount: number;
   }
 
   function convertToLast91Days(data: FilteredDate[]): ConversionResult {
     const today = new Date();
     const last91Days: DayData[][] = Array.from({ length: 7 }, () => Array(13).fill(null));
     let completedCount = 0;
+    let missedDaysCount = 0;
     let longestMissedStreak = 0;
     let currentMissedStreak = 0;
 
@@ -53,6 +55,7 @@
                 currentMissedStreak = 0; // Reiniciamos la racha de fallos
             } else {
                 status = "missed";
+                missedDaysCount++; // Contamos los días fallidos totales
                 currentMissedStreak++;
                 if (currentMissedStreak > longestMissedStreak) {
                     longestMissedStreak = currentMissedStreak;
@@ -66,11 +69,16 @@
         last91Days[row][col] = { date: dateStr, status };
     }
 
-    // 📌 Evaluamos si el hábito está formado
-    const habitBuilded = completedCount >= 66 && longestMissedStreak <= 3;
+    // 📌 Evaluamos si el hábito se ha perdido
+    const habitLost = longestMissedStreak >= 10 || missedDaysCount >= 30;
 
-    return { last91Days, completedCount, longestMissedStreak, habitBuilded };
+    // 📌 Si el hábito se ha perdido, habitBuilded = false
+    const habitBuilded = completedCount >= 66 && longestMissedStreak <= 3 && !habitLost;
+
+    return { last91Days, completedCount, longestMissedStreak, missedDaysCount, habitBuilded };
   }
+
+
 
 </script>
 
@@ -99,7 +107,13 @@
     <p>{convertData.completedCount} / 66 completed days</p>
   </Tooltip>
   <p>{daysLeft} Days left</p>
+</div>
+
+<div>
   <p>Miss Streak: {convertData.longestMissedStreak}</p>
+  <p>Is habit builded? : {convertData.habitBuilded}</p>
+  <p>Missed Days:{convertData.missedDaysCount}</p>
+
 </div>
 
 <style>
