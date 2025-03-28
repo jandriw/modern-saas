@@ -98,7 +98,7 @@
     <div class="w-4 h-4 flex items-center justify-center bg-gray-600 rounded-full text-white text-xs cursor-pointer">
       <p>i</p>
     </div>
-    <Tooltip placement="top">
+    <Tooltip placement="top" class="w-96">
         <p>Consistency is measured based on your weekly regularity, activity variability, and periods without recorded data. To improve, maintain a steady pace and avoid long breaks. 🚀</p>
     </Tooltip>
   </div>

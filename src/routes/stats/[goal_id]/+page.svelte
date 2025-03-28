@@ -13,6 +13,7 @@
     Chevron,
     DropdownItem,
   } from "flowbite-svelte";
+	import HabitsDayGrid from "$lib/components/HabitsDayGrid.svelte";
 
   export let data: PageData;
 
@@ -184,6 +185,7 @@
   </div>
   <Consistency data={data.dates} />
   <DaylyHeatmap dataFromParent={data.dates} />
+  <HabitsDayGrid data={data.dates} />
 </div>
 {/if}
 <pre>
