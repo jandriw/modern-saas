@@ -385,9 +385,6 @@
   </div>
 </div>
 
-<p>{completionSeriesConsolidation}</p>
-<p>{missSeriesConsolidation}</p>
-
 <style>
   .completed { background-color: #40e27b; } /* Verde */
   .missed { background-color: #ef444484; } /* Rojo */
