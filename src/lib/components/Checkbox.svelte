@@ -56,7 +56,7 @@
     background: #444;
     border-color: #666;
     color: white;
-    opacity: 0.5;
+    opacity: 0.7;
     cursor: default;
   }
 
