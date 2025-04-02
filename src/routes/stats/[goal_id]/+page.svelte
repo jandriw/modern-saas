@@ -14,6 +14,7 @@
     DropdownItem,
   } from "flowbite-svelte";
 	import HabitsDayGrid from "$lib/components/HabitsDayGrid.svelte";
+	import Motivation from "$lib/components/Motivation.svelte";
 
   export let data: PageData;
 
@@ -184,6 +185,7 @@
     </div>
   </div>
   <Consistency data={data.dates} />
+  <Motivation data={data.dates} />
   <DaylyHeatmap dataFromParent={data.dates} />
   <HabitsDayGrid data={data.dates} />
 </div>

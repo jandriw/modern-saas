@@ -26,29 +26,29 @@ export const load: PageServerLoad = async (event) => {
       };
     };
   }
-  
+
   interface FilteredDate {
     goal_id: string;
     year: number;
     month: number;
     dates: string[];
   }
-  
+
   async function getCompletedDays(): Promise<CompletedDays> {
     const { data: completedDays, error: daysError } = await event.locals.supabase
       .from("dates")
       .select("goal_id, date")
       .order("date", { ascending: true });
-  
+
     if (daysError) {
       throw error(500, "Error fetching completed days, please try again later.");
     }
-  
+
     const groupedDays: CompletedDays = {};
-  
+
     completedDays.forEach(({ goal_id, date }: { goal_id: string; date: string }) => {
       const [year, month] = date.split("-");
-      const jsMonth = (parseInt(month, 10) - 1).toString().padStart(2, "0"); // Convertir a formato JS
+      const jsMonth = (parseInt(month, 10) - 1).toString().padStart(2, "0");
       
       if (!groupedDays[goal_id]) {
         groupedDays[goal_id] = {};
@@ -61,63 +61,81 @@ export const load: PageServerLoad = async (event) => {
       }
       groupedDays[goal_id][year][jsMonth].push(date);
     });
-  
-    // Rellenar los meses vacíos dentro del rango de fechas en el orden correcto
-    Object.keys(groupedDays).forEach((goal_id) => {
-      const goalEntries = Object.entries(groupedDays[goal_id]);
-      if (goalEntries.length === 0) return;
-      
-      const years = Object.keys(groupedDays[goal_id]).map(Number).sort((a, b) => a - b);
-      const firstYear = years[0];
-      const lastYear = years[years.length - 1];
-      
-      const firstMonth = Math.min(...Object.keys(groupedDays[goal_id][firstYear.toString()]).map(Number));
-      const lastMonth = Math.max(...Object.keys(groupedDays[goal_id][lastYear.toString()]).map(Number));
-      
-      const minDate = new Date(firstYear, firstMonth, 1);
-      const maxDate = new Date(lastYear, lastMonth, 1);
-      
-      let currentDate = new Date(minDate);
-      while (currentDate <= maxDate) {
-        const year = currentDate.getFullYear().toString();
-        const month = currentDate.getMonth().toString().padStart(2, "0");
-        
-        if (!groupedDays[goal_id][year]) {
-          groupedDays[goal_id][year] = {};
-        }
-        if (!groupedDays[goal_id][year][month]) {
-          groupedDays[goal_id][year][month] = [];
-        }
-        
-        currentDate.setMonth(currentDate.getMonth() + 1);
-      }
-    });
-  
+
     return groupedDays;
   }
-  
+
   function displayDates(groupedDays: CompletedDays): FilteredDate[] {
     const filteredDates: FilteredDate[] = [];
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-11 format para JavaScript
     
     Object.keys(groupedDays).forEach((goal_id) => {
       const allDates: { year: number; month: number }[] = [];
+      let minYear = currentYear;
+      let minMonth = currentMonth;
+      let maxYear = currentYear;
+      let maxMonth = currentMonth;
       
+      // Determinar el rango de fechas para este goal
       Object.keys(groupedDays[goal_id]).forEach((year) => {
         Object.keys(groupedDays[goal_id][year]).forEach((month) => {
-          allDates.push({ year: Number(year), month: Number(month) });
+          const yearNum = Number(year);
+          const monthNum = Number(month);
+          
+          // Actualizar mínimos
+          if (yearNum < minYear || (yearNum === minYear && monthNum < minMonth)) {
+            minYear = yearNum;
+            minMonth = monthNum;
+          }
+          
+          // Actualizar máximos (asegurando que incluimos al menos el mes actual)
+          if (yearNum > maxYear || (yearNum === maxYear && monthNum > maxMonth)) {
+            maxYear = yearNum;
+            maxMonth = monthNum;
+          }
         });
       });
       
+      // Asegurarse de que el mes actual esté dentro del rango
+      if (maxYear < currentYear || (maxYear === currentYear && maxMonth < currentMonth)) {
+        maxYear = currentYear;
+        maxMonth = currentMonth;
+      }
+      
+      // Generar todos los meses consecutivos dentro del rango
+      let tempDate = new Date(minYear, minMonth, 1);
+      const endDate = new Date(maxYear, maxMonth, 1);
+      
+      while (tempDate <= endDate) {
+        allDates.push({
+          year: tempDate.getFullYear(),
+          month: tempDate.getMonth()
+        });
+        
+        // Avanzar al siguiente mes
+        tempDate.setMonth(tempDate.getMonth() + 1);
+      }
+      
+      // Ordenar las fechas (aunque ya deberían estar ordenadas)
       allDates.sort((a, b) => a.year === b.year ? a.month - b.month : a.year - b.year);
       
+      // Tomar solo los últimos 4 meses
       const lastFourMonths = allDates.slice(-4);
       
       lastFourMonths.forEach(({ year, month }) => {
+        // Convertir el número de mes a string con padding para mantener compatibilidad
+        const monthStr = month.toString().padStart(2, "0");
+        
+        // Verificar si existen datos para este mes
+        const dates = groupedDays[goal_id]?.[year.toString()]?.[monthStr] || [];
+        
         filteredDates.push({
           goal_id,
           year,
           month,
-          dates: groupedDays[goal_id][year.toString()][month.toString().padStart(2, "0")],
+          dates: dates,
         });
       });
     });
@@ -125,7 +143,7 @@ export const load: PageServerLoad = async (event) => {
     return filteredDates;
   }
 
-  let days = await getCompletedDays()
+  let days = await getCompletedDays();
   
   return {
     createGoalForm: superValidate(createGoalSchema, {
