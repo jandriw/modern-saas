@@ -190,6 +190,3 @@
   <HabitsDayGrid data={data.dates} />
 </div>
 {/if}
-<pre>
-  {allData}
-</pre>
