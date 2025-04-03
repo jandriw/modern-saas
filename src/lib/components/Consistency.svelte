@@ -94,7 +94,7 @@
       <Tooltip placement="top">
         <p>{calculatedData.message}</p>
       </Tooltip>
-  </div>
+    </div>
     <div class="w-4 h-4 flex items-center justify-center bg-gray-600 rounded-full text-white text-xs cursor-pointer">
       <p>i</p>
     </div>
